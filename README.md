@@ -1,4 +1,5 @@
 # ChatRoom
+![image](https://github.com/e23882/ChatRoom/blob/master/demo.PNG)
 ## 功能說明 : 
 ### 基於websocket的輕量級聊天室服務、客戶端
 ### 主要是用在同一組人坐在辦公室的兩端，解決電話溝通細節不清楚問題
