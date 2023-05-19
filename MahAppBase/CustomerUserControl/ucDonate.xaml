@@ -1,0 +1,13 @@
+﻿<controls:MetroWindow x:Class="MahAppBase.CustomerUserControl.ucDonate"
+                      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                      xmlns:controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+                      xmlns:local="clr-namespace:MahAppBase.CustomerUserControl"
+                      mc:Ignorable="d"
+                      Title="Donate" Height="400" Width="400" Closed="UcDonate_OnClosed">
+    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+        <Image Source="pack://application:,,,/Image/Donate.jpg" Width="400"/>
+    </StackPanel>
+</controls:MetroWindow>
