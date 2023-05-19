@@ -61,4 +61,5 @@ C:\Users\01002099\Desktop\Scheduler\MahAppBase\obj\Debug\MahAppBase.exe
 C:\Users\01002099\Desktop\Scheduler\MahAppBase\obj\Debug\MahAppBase.pdb
 C:\Users\01002099\Desktop\Scheduler\MahAppBase\bin\Debug\websocket-sharp.dll
 C:\Users\01002099\Desktop\Scheduler\MahAppBase\bin\Debug\Notifications.Wpf.dll
-C:\Users\01002099\Desktop\Scheduler\MahAppBase\obj\Debug\MahAppBase.csproj.AssemblyReference.cache
+C:\Users\01002099\Desktop\Scheduler\MahAppBase\bin\Debug\Newtonsoft.Json.dll
+C:\Users\01002099\Desktop\Scheduler\MahAppBase\bin\Debug\Newtonsoft.Json.xml

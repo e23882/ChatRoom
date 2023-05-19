@@ -53,8 +53,8 @@
                     </Grid.ColumnDefinitions>
                     <TextBox Grid.Row="0" Grid.Column="0" x:Name="tbChat" TextWrapping="Wrap" AcceptsReturn="True" Text="{Binding ChatText}" VerticalScrollBarVisibility="Auto" Background="LightGray"/>
                     <GridSplitter Grid.Row="0" Background="Black" VerticalAlignment="Stretch"  Width="1.5"/>
-                    <ListBox Grid.Row="0" Grid.Column="1" MinWidth="100" ItemsSource="{Binding AllUser}">
-                    </ListBox>
+                    <ListBox Grid.Row="0" Grid.Column="1" MinWidth="110" ItemsSource="{Binding AllUser}"/>
+
                     <GridSplitter Grid.Row="0" Grid.ColumnSpan="2" Background="LightGray" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Height="3"/>
                     <Grid Grid.Row="1"  Grid.Column="0"  Grid.ColumnSpan="2">
                         <Grid.RowDefinitions>
