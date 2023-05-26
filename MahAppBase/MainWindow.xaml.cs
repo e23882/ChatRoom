@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Windows;
 using System.Windows.Input;
 using MahAppBase.ViewModel;
@@ -19,10 +20,20 @@ namespace MahAppBase
 			viewModel.ChatTextBox = tbChat;
 			this.DataContext = viewModel;
 		}
+		protected override void OnClosing(CancelEventArgs e)
+		{
+			viewModel.State = WindowState.Minimized;
+			e.Cancel = true;
+			//this.Hide();
+			//this.Show();
+			base.OnClosing(e);
+		}
 
 		private void MetroWindow_Closed(object sender, EventArgs e)
 		{
-			viewModel.State = WindowState.Minimized;
+			
+			
+			
 		}
 
 		private void TextBox_KeyUp(object sender, KeyEventArgs e)

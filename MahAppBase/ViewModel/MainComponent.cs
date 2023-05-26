@@ -14,6 +14,7 @@ using System.Diagnostics;
 using System.IO;
 using Newtonsoft.Json;
 using System.Threading;
+using System.Drawing;
 
 namespace MahAppBase.ViewModel
 {
@@ -28,7 +29,7 @@ namespace MahAppBase.ViewModel
 		
 		private Visibility _MainWindowVisibility;
 
-		private bool _ShowInToolBar;
+		private bool _ShowInToolBar = true;
 
 		private int _ShowMessageTime = 60;
 
@@ -37,7 +38,7 @@ namespace MahAppBase.ViewModel
 		private string _UserName;
 		private string _ConnectStatus = string.Empty;
 
-		private Brush _StatusBackGroundColor = new SolidColorBrush(Colors.Red);
+		private System.Windows.Media.Brush _StatusBackGroundColor  ;
 
 		private System.Windows.Controls.TextBox _ChatTextBox;
 
@@ -54,10 +55,10 @@ namespace MahAppBase.ViewModel
 			set; 
 		}
 
-		public void PressUpButtonCommandAction()
-		{
-			InPut = PreviousInput.Replace("\r", "").Replace("\n", "");
-		}
+		/// <summary>
+		/// 目前使用者IP(避免使用者mock其他使用者)
+		/// </summary>
+		public string CurrentIP { get; set; }
 
 		/// <summary>
 		/// 所有以連線的使用者清單
@@ -107,6 +108,9 @@ namespace MahAppBase.ViewModel
 			}
 		}
 
+		/// <summary>
+		/// 前一個輸入的訊息(用於按下上顯示上一個訊息)
+		/// </summary>
 		public string PreviousInput { get;  set; }
 
 		/// <summary>
@@ -141,10 +145,12 @@ namespace MahAppBase.ViewModel
 			}
 		}
 
+		public NoParameterCommand ButtonImageSendCommand { get; set; }
+
 		/// <summary>
 		/// Donate click
 		/// </summary>
-		public NoParameterCommand ButtonDonateClick 
+		public NoParameterCommand ButtonDonateClickCommand 
 		{
 			get; 
 			set; 
@@ -168,7 +174,7 @@ namespace MahAppBase.ViewModel
 		/// <summary>
 		/// 與WebSocket Server狀態背景顏色
 		/// </summary>
-		public Brush StatusBackGroundColor
+		public System.Windows.Media.Brush StatusBackGroundColor
 		{
 			get
 			{
@@ -177,6 +183,20 @@ namespace MahAppBase.ViewModel
 			set
 			{
 				_StatusBackGroundColor = value;
+				OnPropertyChanged();
+			}
+		}
+
+		private Visibility _MainWindowVisibly = Visibility.Visible;
+		public Visibility MainWindowVisibly 
+		{
+			get 
+			{
+				return _MainWindowVisibly;
+			}
+			set 
+			{
+				_MainWindowVisibly = value;
 				OnPropertyChanged();
 			}
 		}
@@ -208,6 +228,11 @@ namespace MahAppBase.ViewModel
 			set;
 		}
 	
+		/// <summary>
+		/// 顯示Git main page
+		/// </summary>
+		public NoParameterCommand ButtonGitClickCommand { get; set; }
+
 		/// <summary>
 		/// 主程式執行時，ICON是否在window toolbar(最小化不顯示)
 		/// </summary>
@@ -256,29 +281,35 @@ namespace MahAppBase.ViewModel
 		{
 			get
 			{
+				try 
+				{
+					switch (_State)
+					{
+						case WindowState.Minimized:
+							nIcon.Visible = true;
+							ShowInToolBar = false;
+							MainWindowVisibly = Visibility.Hidden;
+							return _State;
+						case WindowState.Normal:
+							nIcon.Visible = false;
+							ShowInToolBar = true;
+							MainWindowVisibly = Visibility.Visible;
+							return _State;
+					}
+				}
+				catch 
+				{
+					nIcon.Visible = false;
+					ShowInToolBar = true;
+					MainWindowVisibly = Visibility.Visible;
+					return _State;
+				}
 				return _State;
 			}
 			set
 			{
 				_State = value;
-				switch (_State)
-				{
-					case WindowState.Minimized:
-						MainWindowVisibility = Visibility.Hidden;
-						nIcon.Visible = true;
-						ShowInToolBar = false;
-						break;
-					case WindowState.Normal:
-						MainWindowVisibility = Visibility.Visible;
-						nIcon.Visible = false;
-						ShowInToolBar = true;
-						break;
-					case WindowState.Maximized:
-						MainWindowVisibility = Visibility.Visible;
-						nIcon.Visible = false;
-						ShowInToolBar = true;
-						break;
-				}
+				
 				OnPropertyChanged();
 			}
 		}
@@ -301,6 +332,14 @@ namespace MahAppBase.ViewModel
 		#endregion
 
 		#region MemberFunction
+		/// <summary>
+		/// 按 "上" 按鈕 Command action
+		/// </summary>
+		public void PressUpButtonCommandAction()
+		{
+			InPut = PreviousInput.Replace("\r", "").Replace("\n", "");
+		}
+
 		/// <summary>
 		/// 初始化主程式工具列圖案、相關功能
 		/// </summary>
@@ -361,9 +400,13 @@ namespace MahAppBase.ViewModel
 		/// <param name="e"></param>
 		private void NIcon_MouseDoubleClick(object sender, System.Windows.Forms.MouseEventArgs e)
 		{
-			State = WindowState.Normal;
-		}
 		
+			//State = WindowState.Normal;
+			//MainWindowVisibility = Visibility.Visible;
+			//nIcon.Visible = false;
+			//ShowInToolBar = true;
+		}
+
 		/// <summary>
 		/// 建構子
 		/// </summary>
@@ -378,12 +421,13 @@ namespace MahAppBase.ViewModel
 					if (ip.AddressFamily == AddressFamily.InterNetwork)
 					{
 						UserName = ip.ToString();
+						CurrentIP = UserName;
 						break;
 					}
 				}
-				ButtonDonateClick = new NoParameterCommand(ButtonDonateClickAction);
-				SendMessageCommand = new NoParameterCommand(SendMessageCommandAction);
-				CloseCommand = new NoParameterCommand(CloseCommandAction);
+
+				InitCommand();
+				
 				InitIcon();
 				InitConnection();
 				ReadSetting();
@@ -392,6 +436,52 @@ namespace MahAppBase.ViewModel
 			{
 				System.Windows.Forms.MessageBox.Show($"初始化發生例外 : {ex.Message}\r\n{ex.StackTrace}");
 			}
+		}
+
+		private void InitCommand()
+		{
+			ButtonDonateClickCommand = new NoParameterCommand(ButtonDonateClickAction);
+			SendMessageCommand = new NoParameterCommand(SendMessageCommandAction);
+			CloseCommand = new NoParameterCommand(CloseCommandAction);
+			ButtonGitClickCommand = new NoParameterCommand(ButtonGitClickCommandAction);
+			ButtonImageSendCommand = new NoParameterCommand(ButtonImageSendCommandAction);
+		}
+
+		private void ButtonImageSendCommandAction()
+		{
+			OpenFileDialog openFileDialog1 = new OpenFileDialog
+			{
+				InitialDirectory = @"D:\",
+				Title = "選取圖片",
+
+				CheckFileExists = true,
+				CheckPathExists = true,
+				RestoreDirectory = true,
+				ReadOnlyChecked = true,
+				ShowReadOnly = true
+			};
+
+			if (openFileDialog1.ShowDialog() == DialogResult.OK)
+			{
+				using (Image image = Image.FromFile(openFileDialog1.FileName))
+				{
+					using (MemoryStream m = new MemoryStream())
+					{
+						image.Save(m, image.RawFormat);
+						byte[] imageBytes = m.ToArray();
+
+						// Convert byte[] to Base64 String
+						string base64String = Convert.ToBase64String(imageBytes);
+						InPut = base64String;
+						SendMessage();
+					}
+				}
+			}
+		}
+
+		private void ButtonGitClickCommandAction()
+		{
+			
 		}
 
 		/// <summary>
@@ -466,12 +556,12 @@ namespace MahAppBase.ViewModel
 				WebSocketClient.OnClose += Ws_OnClose;
 				WebSocketClient.Connect();
 				ConnectStatus = "伺服器連線成功!";
-				StatusBackGroundColor = Brushes.LightGreen;
+				StatusBackGroundColor = System.Windows.Media.Brushes.LightGreen;
 			}
 			catch (Exception ex)
 			{
 				System.Windows.Forms.MessageBox.Show($"初始化連線發生例外 : {ex.Message}\r\n{ex.StackTrace}");
-				StatusBackGroundColor = Brushes.Red;
+				StatusBackGroundColor = System.Windows.Media.Brushes.Red;
 			}
 		}
 		
@@ -483,7 +573,7 @@ namespace MahAppBase.ViewModel
 		private void Ws_OnClose(object sender, CloseEventArgs e)
 		{
 			ConnectStatus = "伺服器中斷連線...嘗試重連....";
-			StatusBackGroundColor = Brushes.Orange;
+			StatusBackGroundColor = System.Windows.Media.Brushes.Orange;
 			InitialClient();
 		}
 		
@@ -493,7 +583,7 @@ namespace MahAppBase.ViewModel
 		private void InitialClient()
 		{
 			var server = ConfigurationSettings.AppSettings["Server"];
-			WebSocketClient = new WebSocket($"WebSocketClient://{server}:5566/Connect");
+			WebSocketClient = new WebSocket($"ws://{server}:5566/Connect");
 			WebSocketClient.OnMessage += Ws_OnMessage;
 			WebSocketClient.OnOpen += Ws_OnOpen;
 			WebSocketClient.OnClose += Ws_OnClose;
@@ -503,7 +593,7 @@ namespace MahAppBase.ViewModel
 				{
 					WebSocketClient.Connect();
 					ConnectStatus = "伺服器連線成功!";
-					StatusBackGroundColor = Brushes.Green;
+					StatusBackGroundColor = System.Windows.Media.Brushes.Green;
 				}
 				catch(Exception ex) 
 				{
@@ -535,11 +625,11 @@ namespace MahAppBase.ViewModel
 			{
 				return;
 			}
-
+			
 			string receiveData = e.Data;
 			if (receiveData.Length > 40)
 			{
-				if (receiveData.Contains("使用者"))
+				if (receiveData.Contains("使用者") && receiveData.Contains("加入聊天"))
 				{
 					var allLloginMessage = receiveData.Split(' ');
 					if (allLloginMessage.Length > 2)
@@ -547,16 +637,16 @@ namespace MahAppBase.ViewModel
 						AllUser.Add(allLloginMessage[1]);
 					}
 				}
-
 			}
 
 			ChatText += receiveData;
 			if (!receiveData.Contains(UserName))
 			{
 				ShowMessage("通知", receiveData, NotificationType.Success);
-				if (this.ChatTextBox != null) 
-					this.ChatTextBox.ScrollToEnd();
+				
 			}
+			if (this.ChatTextBox != null)
+				this.ChatTextBox.ScrollToEnd();
 		}
 		
 		/// <summary>
@@ -564,12 +654,12 @@ namespace MahAppBase.ViewModel
 		/// </summary>
 		public void SendMessage()
 		{
-			if (!string.IsNullOrEmpty(InPut))
+			if (!string.IsNullOrEmpty(InPut.Replace("\r", "").Replace("\n", "")))
 			{
 				//render message
 				//ChatText += $"[{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}] {UserName} : {InPut}";
 				//send message
-				WebSocketClient.Send($"[{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}] {UserName} : {InPut}\n");
+				WebSocketClient.Send($"[{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}] {UserName}({CurrentIP}) : {InPut}\n");
 				//clear input
 				PreviousInput = InPut;
 				InPut = "";
@@ -609,10 +699,6 @@ namespace MahAppBase.ViewModel
 				donate.Closed += Donate_Closed;
 				DonateIsOpen = true;
 				donate.Show();
-			}
-			else
-			{
-
 			}
 		}
 		

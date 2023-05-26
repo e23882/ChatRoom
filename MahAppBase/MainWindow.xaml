@@ -27,14 +27,21 @@
     </controls:MetroWindow.InputBindings>
     <controls:MetroWindow.RightWindowCommands >
         <controls:WindowCommands>
-            <Button Command="{Binding ButtonDonateClick}">
+            <Button Command="{Binding ButtonDonateClickCommand}">
                 <StackPanel Orientation="Horizontal">
                     <iconPacks:PackIconModern Width="24" Height="24" Kind="Beer" />
                     <TextBlock Margin="4 0 0 0" VerticalAlignment="Center" Text="Donate Developer" />
                 </StackPanel>
             </Button>
+            <Button Command="{Binding ButtonGitClickCommand}">
+                <StackPanel Orientation="Horizontal">
+                    <iconPacks:PackIconModern Width="15" Kind="Tools" />
+                    <TextBlock Margin="4 0 0 0" VerticalAlignment="Center" Text="Git" />
+                </StackPanel>
+            </Button>
         </controls:WindowCommands>
     </controls:MetroWindow.RightWindowCommands>
+    
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
@@ -70,12 +77,20 @@
                             <TextBox Text="{Binding UserName}" Width="120" Margin="10,0,0,0" BorderBrush="Transparent"/>
                             <TextBlock Text="　  " x:Name="tbStatus" VerticalAlignment="Center" Margin="30,0,0,0" Background="{Binding StatusBackGroundColor}"/>
                             <TextBlock Text="{Binding ConnectStatus}" Width="150" Margin="3,0,0,0" VerticalAlignment="Center"/>
-                            <TextBlock Text="訊息顯示時間" VerticalAlignment="Center"/>
+                            <TextBlock Text="訊息顯示時間" VerticalAlignment="Center" Margin="50,0,0,0"/>
                             <TextBox Text="{Binding ShowMessageTime}" Width="25" Margin="0,0,0,0" BorderBrush="Transparent" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                             <TextBlock Text="秒" VerticalAlignment="Center"/>
                         </StackPanel>
                         <TextBox TextWrapping="Wrap" AcceptsReturn="True" Grid.Row="1" Grid.Column="0" KeyUp="TextBox_KeyUp" Text="{Binding InPut, UpdateSourceTrigger=PropertyChanged}"/>
-                        <Button Content="SEND" Padding="20,0" Grid.Row="1"  Grid.Column="1" FontSize="15" Command="{Binding SendMessageCommand}"/>
+                        <StackPanel Grid.Row="1"  Grid.Column="1" Orientation="Horizontal">
+                            <Button Command="{Binding ButtonImageSendCommand}">
+                                <StackPanel Orientation="Horizontal">
+                                    <iconPacks:PackIconModern Width="20" Kind="Image" />
+                                </StackPanel>
+                            </Button>
+                            <Button Content="SEND" Padding="20,0" Grid.Row="1"  Grid.Column="1" FontSize="15" Command="{Binding SendMessageCommand}"/>
+                        </StackPanel>
+                            
                     </Grid>
                 </Grid>
             </controls:MetroTabItem>
