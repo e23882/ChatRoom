@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace MahAppBase.ViewModel
+namespace ChatUI.ViewModel
 {
     /// <summary>
     /// 框架狀態，包含目前記憶體、CPU使用率
@@ -54,7 +54,7 @@ namespace MahAppBase.ViewModel
 
         public void CatchPcStatus()
         {
-            using (Process pro = Process.GetProcessesByName("MahAppBase")[0])
+            using (Process pro = Process.GetProcessesByName("ChatUI")[0])
             {
                 _cpu = new PerformanceCounter("Processor", "% Processor Time", "_Total");
                 Process proc = Process.GetCurrentProcess();

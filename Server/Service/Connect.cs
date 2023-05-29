@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using WebSocketSharp.Server;
 using WebSocketSharp;
+using System.Linq;
 
 namespace Server
 {
@@ -18,10 +19,19 @@ namespace Server
 
         protected override void OnOpen() 
         {
+            //將目前使用者加入清單
             ClientList.Add(this);
+
+            //通知所有以連線使用者目前登入的使用者
             foreach (var item in ClientList)
             {
                 item.Send($"使用者 {this.ID} 加入聊天\n");
+            }
+
+            var current = ClientList.Where(x => x.ID == this.ID).FirstOrDefault();
+            foreach (var item in ClientList)
+            {
+                current.Send($"[目前已連線使用者] {item.ID}");
             }
         }
         protected override void OnClose(CloseEventArgs e)

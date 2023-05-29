@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
-namespace MahAppBase.Command
+namespace ChatUI.Command
 {
     /// <summary>
     /// 無參數共用Command

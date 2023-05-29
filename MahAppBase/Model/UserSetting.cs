@@ -1,5 +1,5 @@
 ﻿
-namespace MahAppBase
+namespace ChatUI
 {
 	public class UserSetting
 	{

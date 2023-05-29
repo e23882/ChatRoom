@@ -6,7 +6,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MahAppBase.ViewModel
+namespace ChatUI.ViewModel
 {
     /// <summary>
     /// 基礎ViewModel，繼承、實作INotifyPropertyChanged Interface

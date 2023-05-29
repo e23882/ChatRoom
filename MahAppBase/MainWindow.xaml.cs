@@ -2,10 +2,10 @@
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Input;
-using MahAppBase.ViewModel;
+using ChatUI.ViewModel;
 using MahApps.Metro.Controls;
 
-namespace MahAppBase
+namespace ChatUI
 {
 	/// <summary>
 	/// MainWindow.xaml 的互動邏輯

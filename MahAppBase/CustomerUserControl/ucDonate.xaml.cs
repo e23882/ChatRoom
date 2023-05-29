@@ -13,7 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using MahApps.Metro.Controls;
 
-namespace MahAppBase.CustomerUserControl
+namespace ChatUI.CustomerUserControl
 {
     /// <summary>
     /// ucDonate.xaml 的互動邏輯

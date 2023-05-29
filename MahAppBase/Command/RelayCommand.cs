@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Input;
 
-namespace MahAppBase.Command
+namespace ChatUI.Command
 {
     /// <summary>
     /// 有參數共用Command
