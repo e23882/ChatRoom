@@ -500,7 +500,10 @@ namespace ChatUI.ViewModel
 
 		private void ButtonGitClickCommandAction()
 		{
+			var git = new ucGit();
 
+
+			git.Show();
 		}
 
 		/// <summary>
@@ -721,13 +724,15 @@ namespace ChatUI.ViewModel
 		public void ShowMessage(string title, string message, NotificationType type)
 		{
 			var notificationManager = new NotificationManager();
+		
 			var ts = TimeSpan.FromSeconds(ShowMessageTime);
+
 			notificationManager.Show(new NotificationContent
 			{
 				Title = title,
 				Message = message,
 				Type = type,
-			}, "", ts);
+			}, "", ts, ()=> State = WindowState.Normal);
 
 		}
 

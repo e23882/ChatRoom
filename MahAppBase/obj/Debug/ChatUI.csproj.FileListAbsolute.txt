@@ -32,3 +32,6 @@ C:\Users\01002099\Desktop\Chat\MahAppBase\obj\Debug\ChatUI.csproj.CoreCompileInp
 C:\Users\01002099\Desktop\Chat\MahAppBase\obj\Debug\ChatUI.csproj.CopyComplete
 C:\Users\01002099\Desktop\Chat\MahAppBase\obj\Debug\ChatUI.exe
 C:\Users\01002099\Desktop\Chat\MahAppBase\obj\Debug\ChatUI.pdb
+C:\Users\01002099\Desktop\Chat\MahAppBase\obj\Debug\ChatUI.csproj.AssemblyReference.cache
+C:\Users\01002099\Desktop\Chat\MahAppBase\obj\Debug\CustomerUserControl\ucGit.g.cs
+C:\Users\01002099\Desktop\Chat\MahAppBase\obj\Debug\CustomerUserControl\ucGit.baml
