@@ -8,15 +8,12 @@ using ChatUI.CustomerUserControl;
 using System.Net;
 using System.Net.Sockets;
 using Notifications.Wpf;
-using System.Windows.Media;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using Newtonsoft.Json;
 using System.Threading;
 using System.Drawing;
-using System.Windows.Documents;
-using System.Windows.Media.Imaging;
 
 namespace ChatUI.ViewModel
 {
@@ -419,11 +416,7 @@ namespace ChatUI.ViewModel
 		/// <param name="e"></param>
 		private void NIcon_MouseDoubleClick(object sender, System.Windows.Forms.MouseEventArgs e)
 		{
-
-			//State = WindowState.Normal;
-			//MainWindowVisibility = Visibility.Visible;
-			//nIcon.Visible = false;
-			//ShowInToolBar = true;
+			State = WindowState.Normal;
 		}
 
 		/// <summary>
@@ -444,9 +437,7 @@ namespace ChatUI.ViewModel
 						break;
 					}
 				}
-
 				InitCommand();
-
 				InitIcon();
 				InitConnection();
 				ReadSetting();

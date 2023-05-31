@@ -172,3 +172,7 @@ packages
 /.vs/CathaySec.BIS.MVC/config/applicationhost.config
 /CathaySec.BIS.Report.Web/Web.config
 /CathaySec.BIS.Report.Web/*.config
+/MahAppBase/bin
+/MahAppBase/obj
+/Server/obj
+/Server/bin
