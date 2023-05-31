@@ -646,9 +646,9 @@ namespace ChatUI.ViewModel
 				var CurrentAddUserID = receiveData.Split(' ')[1];
 				App.Current.Dispatcher.Invoke((Action)delegate // <--- HERE
 				{
-					if (!AllUser.Contains(CurrentAddUserID)) 
+					if (!AllUser.Contains(CurrentAddUserID.Split(':')[0])) 
 					{
-						AllUser.Add(CurrentAddUserID);
+						AllUser.Add(CurrentAddUserID.Split(':')[0]);
 						ConnectCount++;
 					}
 				});
@@ -663,9 +663,9 @@ namespace ChatUI.ViewModel
 				{
 					App.Current.Dispatcher.Invoke((Action)delegate // <--- HERE
 					{
-						if (!AllUser.Contains(allLloginMessage[1])) 
+						if (!AllUser.Contains(allLloginMessage[1].Split(':')[0])) 
 						{
-							AllUser.Add(allLloginMessage[1]);
+							AllUser.Add(allLloginMessage[1].Split(':')[0]);
 							ConnectCount++;
 						}
 					});
@@ -680,9 +680,9 @@ namespace ChatUI.ViewModel
 				{
 					App.Current.Dispatcher.Invoke((Action)delegate // <--- HERE
 					{
-						if (!AllUser.Contains(allLloginMessage[1])) 
+						if (!AllUser.Contains(allLloginMessage[1].Split(':')[0])) 
 						{
-							AllUser.Remove(allLloginMessage[1]);
+							AllUser.Remove(allLloginMessage[1].Split(':')[0]);
 							ConnectCount++;
 						}
 					});
@@ -698,12 +698,13 @@ namespace ChatUI.ViewModel
 				ShowMessage("通知", receiveData, NotificationType.Success);
 
 			}
-			if (this.ChatTextBox != null)
-				this.ChatTextBox.ScrollToEnd();
-
-
-
-
+			if (this.ChatTextBox != null) 
+			{
+				App.Current.Dispatcher.Invoke((Action)delegate // <--- HERE
+				{
+					this.ChatTextBox.ScrollToEnd();
+				});
+			}
 		}
 
 		/// <summary>
