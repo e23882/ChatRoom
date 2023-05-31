@@ -640,39 +640,56 @@ namespace ChatUI.ViewModel
 			}
 
 			string receiveData = e.Data;
-			if (receiveData.Length > 40)
-			{
 
-				if (receiveData.Contains("目前已連線使用者"))
+			if (receiveData.Contains("目前已連線使用者"))
+			{
+				var CurrentAddUserID = receiveData.Split(' ')[1];
+				App.Current.Dispatcher.Invoke((Action)delegate // <--- HERE
 				{
-					var CurrentAddUserID = receiveData.Split(' ')[1];
-					AllUser.Add(CurrentAddUserID);
-					ConnectCount++;
+					if (!AllUser.Contains(CurrentAddUserID)) 
+					{
+						AllUser.Add(CurrentAddUserID);
+						ConnectCount++;
+					}
+				});
+				return;
+			}
+			
+			if (receiveData.Contains("使用者") && receiveData.Contains("加入聊天"))
+			{
+				ShowMessage("通知", receiveData, NotificationType.Success);
+				var allLloginMessage = receiveData.Split(' ');
+				if (allLloginMessage.Length > 2)
+				{
+					App.Current.Dispatcher.Invoke((Action)delegate // <--- HERE
+					{
+						if (!AllUser.Contains(allLloginMessage[1])) 
+						{
+							AllUser.Add(allLloginMessage[1]);
+							ConnectCount++;
+						}
+					});
 					return;
 				}
 			}
-
-			if (receiveData.Length > 40)
+			if (receiveData.Contains("使用者") && receiveData.Contains("離開聊天"))
 			{
-				if (receiveData.Contains("使用者") && receiveData.Contains("加入聊天"))
+				ShowMessage("通知", receiveData, NotificationType.Success);
+				var allLloginMessage = receiveData.Split(' ');
+				if (allLloginMessage.Length > 2)
 				{
-					var allLloginMessage = receiveData.Split(' ');
-					if (allLloginMessage.Length > 2)
+					App.Current.Dispatcher.Invoke((Action)delegate // <--- HERE
 					{
-						AllUser.Add(allLloginMessage[1]);
-						ConnectCount++;
-					}
-				}
-				if (receiveData.Contains("使用者") && receiveData.Contains("離開聊天"))
-				{
-					var allLloginMessage = receiveData.Split(' ');
-					if (allLloginMessage.Length > 2)
-					{
-						AllUser.Remove(allLloginMessage[1]);
-						ConnectCount--;
-					}
+						if (!AllUser.Contains(allLloginMessage[1])) 
+						{
+							AllUser.Remove(allLloginMessage[1]);
+							ConnectCount++;
+						}
+					});
+					return;
 				}
 			}
+			
 
 			ChatText += receiveData;
 
