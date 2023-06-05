@@ -14,7 +14,7 @@ namespace Server
         #endregion
         public static void Main(string[] args) 
         {
-            Server server = new Server(5566);
+            Server server = new Server(5577);
             server.Start();
             Console.WriteLine("WebSocket server started. Press any key to stop.");
             Console.ReadKey();

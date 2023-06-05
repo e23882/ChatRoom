@@ -19,7 +19,46 @@
 
     <Window.Resources>
         <viewModel:Status x:Key="Status"/>
+        <Style x:Key="listboxWithoutBackground" TargetType="{x:Type ListBoxItem}">
+            <Style.Resources>
+                <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}"
+                             Color="Transparent"/>
+                
+            </Style.Resources>
+        </Style>
+        <DataTemplate x:Key="text">
+            <StackPanel Orientation="Horizontal" Height="15">
+                <TextBlock Text="["/>
+                <TextBlock Text="{Binding SentTime}"/>
+                <TextBlock Text="]" />
+                <TextBlock Text="{Binding UserName}" Margin="10,0,0,0"/>
+                <TextBlock Text=" : " />
+                <TextBlock Text="{Binding Message}"  Margin="10,0,0,0"/>
+            </StackPanel>
+        </DataTemplate>
 
+        <DataTemplate x:Key="image">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="["/>
+                <TextBlock Text="{Binding SentTime}"/>
+                <TextBlock Text="]" />
+                <TextBlock Text="{Binding UserName}" Margin="10,0,0,0"/>
+                <TextBlock Text=" : " />
+                <Image Source="{Binding Message}" Height="400" Width="400" MouseLeftButtonDown="Image_MouseLeftButtonDown"/>
+            </StackPanel>
+        </DataTemplate>
+
+        <DataTemplate x:Key="file">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="["/>
+                <TextBlock Text="{Binding SentTime}"/>
+                <TextBlock Text="]" />
+                <TextBlock Text="{Binding UserName}" Margin="10,0,0,0"/>
+                <TextBlock Text=" : " />
+                <Button  Content="{Binding Message}" Padding="20,20" Click="Button_Click"/>
+            </StackPanel>
+        </DataTemplate>
+        <local:ChatDataTemplateSelector x:Key="selector" TextTemplate="{StaticResource text}" ImageTemplate="{StaticResource image}" FileTemplate="{StaticResource file}"/>
     </Window.Resources>
     <controls:MetroWindow.InputBindings>
         <KeyBinding Gesture="Enter" Command="{Binding SendCommand}"/>
@@ -58,7 +97,8 @@
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="auto"/>
                     </Grid.ColumnDefinitions>
-                    <TextBox Grid.Row="0" Grid.Column="0" x:Name="tbChat" TextWrapping="Wrap" AcceptsReturn="True" Text="{Binding ChatText}" VerticalScrollBarVisibility="Auto" Background="LightGray"/>
+
+                    <ListBox Grid.Row="0" Grid.Column="0" ItemsSource="{Binding TextProperty}" ItemTemplateSelector="{StaticResource selector}" ItemContainerStyle="{StaticResource listboxWithoutBackground}"/>
                     <GridSplitter Grid.Row="0" Background="Black" VerticalAlignment="Stretch"  Width="1.5"/>
                     <ListBox Grid.Row="0" Grid.Column="1" MinWidth="130" ItemsSource="{Binding AllUser}"/>
 
@@ -85,7 +125,12 @@
                         </StackPanel>
                         <TextBox TextWrapping="Wrap" AcceptsReturn="True" Grid.Row="1" Grid.Column="0" KeyUp="TextBox_KeyUp" Text="{Binding InPut, UpdateSourceTrigger=PropertyChanged}"/>
                         <StackPanel Grid.Row="1"  Grid.Column="1" Orientation="Horizontal">
-                            <Button Command="{Binding ButtonImageSendCommand}">
+                            <Button Command="{Binding ButtonFileSendCommand}" ToolTip="File">
+                                <StackPanel Orientation="Horizontal">
+                                    <iconPacks:PackIconModern Width="20" Kind="Folder" />
+                                </StackPanel>
+                            </Button>
+                            <Button Command="{Binding ButtonImageSendCommand}" ToolTip="Image">
                                 <StackPanel Orientation="Horizontal">
                                     <iconPacks:PackIconModern Width="20" Kind="Image" />
                                 </StackPanel>

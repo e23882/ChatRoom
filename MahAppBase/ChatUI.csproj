@@ -108,6 +108,14 @@
     <Compile Include="CustomerUserControl\ucGit.xaml.cs">
       <DependentUpon>ucGit.xaml</DependentUpon>
     </Compile>
+    <Compile Include="CustomerUserControl\ucShowImage.xaml.cs">
+      <DependentUpon>ucShowImage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Model\ChatDataTemplateSelector.cs" />
+    <Compile Include="Model\FileContent.cs" />
+    <Compile Include="Model\ImageContent.cs" />
+    <Compile Include="Model\MessageContent.cs" />
+    <Compile Include="Model\ReceiveMessage.cs" />
     <Compile Include="Model\UserSetting.cs" />
     <Compile Include="ViewModel\MainComponent.cs" />
     <Compile Include="ViewModel\Status.cs" />
@@ -117,6 +125,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="CustomerUserControl\ucGit.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="CustomerUserControl\ucShowImage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -33,7 +33,7 @@ namespace ChatUI.ViewModel
 		private int _ShowMessageTime = 60;
 
 		private string _ChatText;
-		private string _InPut;
+		private string _InPut = "";
 		private string _UserName;
 		private string _ConnectStatus = string.Empty;
 
@@ -42,6 +42,19 @@ namespace ChatUI.ViewModel
 		private System.Windows.Controls.TextBox _ChatTextBox;
 
 		private ObservableCollection<string> _AllUser = new ObservableCollection<string>();
+
+		private ObservableCollection<ReceiveMessage> _TextProperty = new ObservableCollection<ReceiveMessage>();
+		public ObservableCollection<ReceiveMessage> TextProperty
+		{
+			get
+			{
+				return _TextProperty;
+			}
+			set
+			{
+				_TextProperty = value;
+			}
+		}
 		#endregion
 
 		#region Property
@@ -247,6 +260,8 @@ namespace ChatUI.ViewModel
 		/// </summary>
 		public NoParameterCommand ButtonGitClickCommand { get; set; }
 
+		public NoParameterCommand ButtonFileSendCommand { get; set; }
+
 		/// <summary>
 		/// 主程式執行時，ICON是否在window toolbar(最小化不顯示)
 		/// </summary>
@@ -444,7 +459,7 @@ namespace ChatUI.ViewModel
 			}
 			catch (Exception ex)
 			{
-				System.Windows.Forms.MessageBox.Show($"初始化發生例外 : {ex.Message}\r\n{ex.StackTrace}");
+				ShowMessage("錯誤", $"初始化發生例外 : {ex.Message}", NotificationType.Error);
 			}
 		}
 
@@ -455,15 +470,15 @@ namespace ChatUI.ViewModel
 			CloseCommand = new NoParameterCommand(CloseCommandAction);
 			ButtonGitClickCommand = new NoParameterCommand(ButtonGitClickCommandAction);
 			ButtonImageSendCommand = new NoParameterCommand(ButtonImageSendCommandAction);
+			ButtonFileSendCommand = new NoParameterCommand(ButtonFileSendCommandAction);
 		}
 
-		private void ButtonImageSendCommandAction()
+		private void ButtonFileSendCommandAction()
 		{
 			OpenFileDialog openFileDialog1 = new OpenFileDialog
 			{
 				InitialDirectory = @"D:\",
-				Title = "選取圖片",
-
+				Title = "選取要傳送的檔案",
 				CheckFileExists = true,
 				CheckPathExists = true,
 				RestoreDirectory = true,
@@ -473,18 +488,61 @@ namespace ChatUI.ViewModel
 
 			if (openFileDialog1.ShowDialog() == DialogResult.OK)
 			{
-				using (Image image = Image.FromFile(openFileDialog1.FileName))
+				try
 				{
-					using (MemoryStream m = new MemoryStream())
+					var server = ConfigurationSettings.AppSettings["Server"];
+					//using (Image image = Image.FromFile(openFileDialog1.FileName))
+					using (var client = new WebClient())
 					{
-						image.Save(m, image.RawFormat);
-						byte[] imageBytes = m.ToArray();
-
-						// Convert byte[] to Base64 String
-						string base64String = Convert.ToBase64String(imageBytes);
-						InPut = base64String;
-						SendMessage();
+						client.Credentials = new NetworkCredential("anonymous", "janeDoe@contoso.com");
+						client.UploadFile($"ftp://{server}/{openFileDialog1.SafeFileName}", WebRequestMethods.Ftp.UploadFile, openFileDialog1.FileName);
 					}
+					InPut = $"!File:ftp://{server}/{openFileDialog1.SafeFileName}";
+					SendMessage();
+				}
+				catch (Exception ex)
+				{
+					ShowMessage("錯誤", $"傳送檔案時發生例外 : {ex.Message}", NotificationType.Error);
+				}
+			}
+		}
+
+		private void ButtonImageSendCommandAction()
+		{
+			OpenFileDialog openFileDialog1 = new OpenFileDialog
+			{
+				InitialDirectory = @"D:\",
+				Title = "選取圖片",
+				Filter = "Image Files|*.jpg;*.jpeg;*.png;*.gif;*.tif;...",
+				CheckFileExists = true,
+				CheckPathExists = true,
+				RestoreDirectory = true,
+				ReadOnlyChecked = true,
+				ShowReadOnly = true
+			};
+
+			if (openFileDialog1.ShowDialog() == DialogResult.OK)
+			{
+				try 
+				{
+					using (Image image = Image.FromFile(openFileDialog1.FileName))
+					{
+						using (MemoryStream m = new MemoryStream())
+						{
+							image.Save(m, image.RawFormat);
+							byte[] imageBytes = m.ToArray();
+
+							// Convert byte[] to Base64 String
+							string base64String = Convert.ToBase64String(imageBytes);
+							InPut = $"!Image:{base64String}";
+						}
+					}
+					
+					SendMessage();
+				}
+				catch(Exception ex) 
+				{
+					ShowMessage("錯誤", $"傳送圖片時發生例外 : {ex.Message}", NotificationType.Error);
 				}
 			}
 		}
@@ -563,7 +621,7 @@ namespace ChatUI.ViewModel
 			try
 			{
 				var server = ConfigurationSettings.AppSettings["Server"];
-				WebSocketClient = new WebSocket($"ws://{server}:5566/Connect");
+				WebSocketClient = new WebSocket($"ws://{server}:5577/Connect");
 				WebSocketClient.OnMessage += Ws_OnMessage;
 				WebSocketClient.OnOpen += Ws_OnOpen;
 				WebSocketClient.OnClose += Ws_OnClose;
@@ -573,7 +631,7 @@ namespace ChatUI.ViewModel
 			}
 			catch (Exception ex)
 			{
-				System.Windows.Forms.MessageBox.Show($"初始化連線發生例外 : {ex.Message}\r\n{ex.StackTrace}");
+				ShowMessage("錯誤", $"初始化連線發生例外 : {ex.Message}", NotificationType.Error);
 				StatusBackGroundColor = System.Windows.Media.Brushes.Red;
 			}
 		}
@@ -689,22 +747,55 @@ namespace ChatUI.ViewModel
 					return;
 				}
 			}
+			ReceiveMessage formatData = JsonConvert.DeserializeObject<ReceiveMessage>(receiveData);
+			switch (formatData.Type) 
+			{
+				case "Image":
+					if (formatData.UserName !=UserName)
+					{
+						ShowMessage("通知", $"{formatData.UserName} 傳送圖片", NotificationType.Success);
+					}
+					formatData.Message = formatData.Message.Replace("!Image:", "");
+					byte[] bytes = Convert.FromBase64String(formatData.Message);
+					Image image;
+					using (MemoryStream ms = new MemoryStream(bytes))
+					{
+						image = Image.FromStream(ms);
+					}
+					var currentPath = $"{Guid.NewGuid().ToString()}.jpg";
+					image.Save(currentPath);
+					formatData.Message = $"{System.AppDomain.CurrentDomain.BaseDirectory}{currentPath}";
+					App.Current.Dispatcher.Invoke((Action)delegate // <--- HERE
+					{
+						TextProperty.Add(formatData);
+					});
+					
+					break;
+				case "Text":
+					if (formatData.UserName != UserName)
+					{
+						ShowMessage("通知", $"{formatData.UserName} : {formatData.Message}", NotificationType.Success);
+					}
+					App.Current.Dispatcher.Invoke((Action)delegate // <--- HERE
+					{
+						TextProperty.Add(formatData);
+					});
+					break;
+				case "File":
+					if (formatData.UserName != UserName)
+					{
+						ShowMessage("通知", $"{formatData.UserName} 傳送檔案", NotificationType.Success);
+					}
+					formatData.Message = "下載 "+formatData.Message.Replace("!File:", "");
+					App.Current.Dispatcher.Invoke((Action)delegate // <--- HERE
+					{
+						TextProperty.Add(formatData);
+					});
+					break;
+			}
+
 			
 
-			ChatText += receiveData;
-
-			if (!receiveData.Contains(UserName))
-			{
-				ShowMessage("通知", receiveData, NotificationType.Success);
-
-			}
-			if (this.ChatTextBox != null) 
-			{
-				App.Current.Dispatcher.Invoke((Action)delegate // <--- HERE
-				{
-					this.ChatTextBox.ScrollToEnd();
-				});
-			}
 		}
 
 		/// <summary>
@@ -714,13 +805,27 @@ namespace ChatUI.ViewModel
 		{
 			if (!string.IsNullOrEmpty(InPut.Replace("\r", "").Replace("\n", "")))
 			{
-				//render message
-				//ChatText += $"[{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}] {UserName} : {InPut}";
-				//send message
-				WebSocketClient.Send($"[{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}] {UserName}({CurrentIP}) : {InPut}\n");
-				//clear input
+				string output = "";
+				ReceiveMessage text = new ReceiveMessage();
+				text.SentTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+				text.UserName = UserName;
+				text.Message = InPut;
+				if (InPut.Contains("!Image"))
+				{
+					text.Type = "Image";
+				}
+				else if (InPut.Contains("!File"))
+				{
+					text.Type = "File";
+				}
+				else 
+				{
+					text.Type = "Text";
+				}
+				output = JsonConvert.SerializeObject(text);
 				PreviousInput = InPut;
 				InPut = "";
+				WebSocketClient.Send(output);
 			}
 		}
 
