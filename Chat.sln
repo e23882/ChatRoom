@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChatUI", "MahAppBase\ChatUI
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChatService", "Server\ChatService.csproj", "{F0BC5064-701D-4F16-AAFA-200114D7625D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileService", "FileService\FileService.csproj", "{C966E8E4-38BB-4712-A00F-39AC82E23BCC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{F0BC5064-701D-4F16-AAFA-200114D7625D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F0BC5064-701D-4F16-AAFA-200114D7625D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F0BC5064-701D-4F16-AAFA-200114D7625D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C966E8E4-38BB-4712-A00F-39AC82E23BCC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C966E8E4-38BB-4712-A00F-39AC82E23BCC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C966E8E4-38BB-4712-A00F-39AC82E23BCC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C966E8E4-38BB-4712-A00F-39AC82E23BCC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

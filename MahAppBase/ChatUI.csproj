@@ -108,6 +108,7 @@
     <Compile Include="CustomerUserControl\ucGit.xaml.cs">
       <DependentUpon>ucGit.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Model\FtpFile.cs" />
     <Compile Include="Model\UserSetting.cs" />
     <Compile Include="ViewModel\MainComponent.cs" />
     <Compile Include="ViewModel\Status.cs" />
