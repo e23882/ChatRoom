@@ -845,11 +845,10 @@ namespace ChatUI.ViewModel
 				App.Current.Dispatcher.Invoke((Action)delegate // <--- HERE
 				{
 					if (!AllUser.Contains(CurrentAddUserID.Split(':')[0]))
-						if (!AllUser.Contains(CurrentAddUserID.Split(':')[0]))
-						{
-							AllUser.Add(CurrentAddUserID.Split(':')[0]);
-							ConnectCount++;
-						}
+					{
+						AllUser.Add(CurrentAddUserID.Split(':')[0]);
+						ConnectCount++;
+					}
 				});
 				return;
 			}
@@ -864,11 +863,10 @@ namespace ChatUI.ViewModel
 					App.Current.Dispatcher.Invoke((Action)delegate // <--- HERE
 					{
 						if (!AllUser.Contains(allLloginMessage[1].Split(':')[0]))
-							if (!AllUser.Contains(allLloginMessage[1].Split(':')[0]))
-							{
-								AllUser.Add(allLloginMessage[1].Split(':')[0]);
-								ConnectCount++;
-							}
+						{
+							AllUser.Add(allLloginMessage[1].Split(':')[0]);
+							ConnectCount++;
+						}
 					});
 					return;
 				}
@@ -881,79 +879,14 @@ namespace ChatUI.ViewModel
 				{
 					App.Current.Dispatcher.Invoke((Action)delegate // <--- HERE
 					{
-						if (!AllUser.Contains(allLloginMessage[1].Split(':')[0]))
 							if (!AllUser.Contains(allLloginMessage[1].Split(':')[0]))
 							{
 								AllUser.Remove(allLloginMessage[1].Split(':')[0]);
-								ConnectCount++;
+								ConnectCount--;
 							}
 					});
 					return;
 				}
-			}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-			ChatText += receiveData;
-
-			if (!receiveData.Contains(UserName))
-			{
-				ShowMessage("通知", receiveData, NotificationType.Success);
-
-			}
-			if (this.ChatTextBox != null)
-			{
-				App.Current.Dispatcher.Invoke((Action)delegate // <--- HERE
-				{
-					this.ChatTextBox.ScrollToEnd();
-				});
 			}
 
 			ChatText += receiveData;
@@ -983,7 +916,6 @@ namespace ChatUI.ViewModel
 			}
 			if (!string.IsNullOrEmpty(InPut.Replace("\r", "").Replace("\n", "")))
 			{
-				WebSocketClient.Send($"[{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}] {UserName}({CurrentIP}) : {InPut}\n");
 				string CryptoKey = "54088";
 				string result;
 				AesCryptoServiceProvider aes = new AesCryptoServiceProvider();
