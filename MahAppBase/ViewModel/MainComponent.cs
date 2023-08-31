@@ -22,6 +22,9 @@ namespace ChatUI.ViewModel
 	public class MainComponent: ViewModelBase
 	{
 		#region Declarations
+
+		ShareService _server = null;
+
 		private FtpFile _SelectedFile = new FtpFile();
 
 		private NotifyIcon nIcon = new NotifyIcon();
@@ -33,6 +36,7 @@ namespace ChatUI.ViewModel
 
 		private bool _ShowInToolBar = true;
 		private bool _FlyOutSettingIsOpen = false;
+		private bool _ShareScreen;
 
 		private int _ShowMessageTime = 60;
 		private int _ConnectCount;
@@ -52,6 +56,19 @@ namespace ChatUI.ViewModel
 		#endregion
 
 		#region Property
+		public bool ShareScreen
+		{
+			get
+			{
+				return _ShareScreen;
+			}
+			set
+			{
+				_ShareScreen = value;
+				_server.Sharing = value;
+				OnPropertyChanged();
+			}
+		}
 		public ObservableCollection<FtpFile> FileList
 		{
 			get
@@ -250,7 +267,7 @@ namespace ChatUI.ViewModel
 				OnPropertyChanged();
 			}
 		}
-
+		public NoParameterCommand WatchLiveCommand { get; set; }
 		public NoParameterCommand SendDataCommand
 		{
 			get; set;
@@ -282,6 +299,7 @@ namespace ChatUI.ViewModel
 			get; set;
 		}
 
+		public NoParameterCommand UpgradeCommand { get; set; }
 
 		/// <summary>
 		/// 關閉視窗Command
@@ -372,6 +390,11 @@ namespace ChatUI.ViewModel
 
 				OnPropertyChanged();
 			}
+		}
+
+		public string SelectedListBoxItem 
+		{
+			get;set;
 		}
 
 		/// <summary>
@@ -503,10 +526,29 @@ namespace ChatUI.ViewModel
 				ShowMessage("通知", $"初始化連線完成", NotificationType.Success);
 				ReadSetting();
 				ShowMessage("通知", $"初始化設定", NotificationType.Success);
+				InitShareService();
 			}
 			catch (Exception ex)
 			{
 				System.Windows.Forms.MessageBox.Show($"初始化發生例外 : {ex.Message}\r\n{ex.StackTrace}");
+			}
+		}
+		
+		Thread ShareThread = null;
+		private void InitShareService ()
+		{
+			try
+			{
+				_server = new ShareService(6842);
+				ShareThread = new Thread(() =>
+				{
+					_server.Run();
+				});
+				ShareThread.Start();
+			}
+			catch
+			{
+
 			}
 		}
 
@@ -517,16 +559,46 @@ namespace ChatUI.ViewModel
 				SendDataCommand = new NoParameterCommand(SendDataCommandAction);
 				SendMessageCommand = new NoParameterCommand(SendMessageCommandAction);
 				CloseCommand = new NoParameterCommand(CloseCommandAction);
-				ButtonGitClickCommand = new NoParameterCommand(ButtonGitClickCommandAction);
 				ShowSettingCommand = new NoParameterCommand(ShowSettingCommandAction);
 				ClearTextCommand = new NoParameterCommand(ClearTextCommandAction);
 				DownloadFileCommand = new NoParameterCommand(DownloadFileCommandAction);
 				DeleteFileCommand = new NoParameterCommand(DeleteFileCommandAction);
+				UpgradeCommand = new NoParameterCommand(UpgradeCommandAction);
+				WatchLiveCommand = new NoParameterCommand(WatchLiveCommandAction);
 			}
 			catch (Exception ex)
 			{
 				ShowMessage("通知", $"初始化命令發生例外 {ex.Message}", NotificationType.Error);
 			}
+		}
+
+		private void WatchLiveCommandAction ()
+		{
+			Live live = new Live();
+			
+			LiveViewModel viewModel = new LiveViewModel(SelectedListBoxItem);
+			live.DataContext = viewModel;
+			live.Show();
+		}
+
+		private void UpgradeCommandAction ()
+		{
+			
+
+			UserSetting currentSetting = new UserSetting();
+			currentSetting.UserName = UserName;
+			currentSetting.ShowTime = ShowMessageTime;
+			string currentSettingString = JsonConvert.SerializeObject(currentSetting, Formatting.Indented);
+			//關閉自己
+			if (File.Exists("UserSetting.ini"))
+				File.Delete("UserSetting.ini");
+			File.WriteAllText("UserSetting.ini", currentSettingString);
+
+			//啟動更新程式
+			Process.Start("Update.exe");
+			KillAllProcess();
+
+			Environment.Exit(0);
 		}
 
 		public bool HasChinese (string str)
@@ -655,14 +727,10 @@ namespace ChatUI.ViewModel
 		private void getFTPFileList ()
 		{
 			FileList.Clear();
-			string ftpServer = "ftp://10.93.9.117"; // FTP 服务器地址
-
-			// 创建FTP请求对象
+			string ftpServer = "ftp://10.93.9.117";
 			FtpWebRequest request = (FtpWebRequest)WebRequest.Create(new Uri(ftpServer));
 			request.Method = WebRequestMethods.Ftp.ListDirectory;
-			request.Credentials = new NetworkCredential("anonymous", "anonymous@example.com"); // 匿名登录凭据
-
-			// 获取FTP响应对象
+			request.Credentials = new NetworkCredential("anonymous", "anonymous@example.com");
 			using (FtpWebResponse response = (FtpWebResponse)request.GetResponse())
 			{
 				using (Stream responseStream = response.GetResponseStream())

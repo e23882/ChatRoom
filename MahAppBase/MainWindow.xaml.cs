@@ -3,7 +3,6 @@ using System.ComponentModel;
 using System.IO;
 using System.Net;
 using System.Windows;
-using System.Windows.Forms;
 using System.Windows.Input;
 using ChatUI.ViewModel;
 using MahApps.Metro.Controls;

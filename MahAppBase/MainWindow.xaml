@@ -16,7 +16,11 @@
         Visibility="{Binding MainWindowVisibly}" 
         Topmost="True"
         Closed="MetroWindow_Closed">
-
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Closed">
+            <i:InvokeCommandAction Command="{Binding MainWindowClosed}"/>
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
     <Window.Resources>
         <viewModel:Status x:Key="Status"/>
     </Window.Resources>
@@ -44,7 +48,13 @@
                     <TextBox Grid.Row="0" Grid.Column="0" x:Name="tbChat"  TextWrapping="Wrap" IsReadOnly="True" AcceptsReturn="True" Text="{Binding ChatText}" VerticalScrollBarVisibility="Auto" Background="LightGray"/>
 
                     <GridSplitter Grid.Row="0" Background="Black" VerticalAlignment="Stretch"  Width="1.5"/>
-                    <ListBox Grid.Row="0" Grid.Column="1" MinWidth="130" ItemsSource="{Binding AllUser}"/>
+                    <ListBox Grid.Row="0" Grid.Column="1" MinWidth="130" ItemsSource="{Binding AllUser}" SelectedValue="{Binding SelectedListBoxItem}">
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="MouseDoubleClick">
+                                <i:InvokeCommandAction Command="{Binding WatchLiveCommand}"/>
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                    </ListBox>
 
                     <GridSplitter Grid.Row="0" Grid.ColumnSpan="2" Background="LightGray" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Height="3"/>
                     <Grid Grid.Row="1"  Grid.Column="0"  Grid.ColumnSpan="2">
@@ -58,7 +68,7 @@
                         </Grid.ColumnDefinitions>
                         <StackPanel Grid.Row="0" Orientation="Horizontal">
                             <TextBlock Text="使用者名稱" Background="White" VerticalAlignment="Center" Margin="5,0,0,0"/>
-                            <TextBox Text="{Binding UserName}" Width="120" Margin="10,0,0,0" BorderBrush="Transparent"/>
+                            <TextBox Text="{Binding UserName}" Width="120" Margin="10,0,0,0" BorderBrush="Transparent" VerticalAlignment="Center"/>
                             <TextBlock Text="　  " x:Name="tbStatus" VerticalAlignment="Center" Margin="5,0,0,0" Background="{Binding StatusBackGroundColor}"/>
                             <TextBlock Text="{Binding ConnectStatus}" Width="150" Margin="3,0,0,0" VerticalAlignment="Center"/>
                             <TextBlock Text="訊息顯示時間" VerticalAlignment="Center" Margin="30,0,0,0"/>
@@ -103,10 +113,18 @@
                         <RowDefinition Height="auto"/>
                         <RowDefinition Height="auto"/>
                     </Grid.RowDefinitions>
-                    <StackPanel Orientation="Horizontal">
-                        <Button Content="清除所有對話" Margin="5" Padding="10,5" FontSize="15" Command="{Binding ClearTextCommand}"/>
+                    <StackPanel Orientation="Vertical">
+                        <StackPanel Orientation="Horizontal" Margin="10,0,0,0">
+                            <Button Content="清除所有對話" Margin="5" Padding="10,5" FontSize="15" Command="{Binding ClearTextCommand}"/>
+                            <Button Content="更新最新版本" Margin="5" Padding="10,5" FontSize="15" Command="{Binding UpgradeCommand}"/>
+                        </StackPanel>
+                            
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="分享畫面" VerticalAlignment="Center" Margin="15,0,0,0"/>
+                            <controls:ToggleSwitchButton Height="30" IsChecked="{Binding ShareScreen}" ToolTip="儲存設定(功能啟用、視窗配置)"/>
+                        </StackPanel>
                     </StackPanel>
-                    <DataGrid Grid.Row="1" ItemsSource="{Binding FileList}" AutoGenerateColumns="False" SelectedItem="{Binding SelectedFile}" CanUserAddRows="False">
+                    <DataGrid Grid.Row="1" ItemsSource="{Binding FileList}" AutoGenerateColumns="False" SelectedItem="{Binding SelectedFile}" CanUserAddRows="False" Margin="0,10,0,0">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="檔名" Binding="{Binding FileName}"/>
                             <DataGridTemplateColumn>
