@@ -13,8 +13,9 @@ using System.Diagnostics;
 using System.IO;
 using Newtonsoft.Json;
 using System.Threading;
-using System.Drawing;
-using System.Collections.Generic;
+using System.Security.Cryptography;
+using System.Text;
+using System.Text.RegularExpressions;
 
 namespace ChatUI.ViewModel
 {
@@ -116,6 +117,19 @@ namespace ChatUI.ViewModel
 			}
 		}
 
+		private FtpFile _SelectedFile = new FtpFile();
+		public FtpFile SelectedFile
+		{
+			get
+			{
+				return _SelectedFile;
+			}
+			set
+			{
+				_SelectedFile = value;
+				OnPropertyChanged();
+			}
+		}
 
 		/// <summary>
 		/// 訊息彈出視窗顯示時間
@@ -271,6 +285,15 @@ namespace ChatUI.ViewModel
 			get;
 			set;
 		}
+		public NoParameterCommand DownloadFileCommand 
+		{
+			get;set;
+		}
+		public NoParameterCommand DeleteFileCommand
+		{
+			get; set;
+		}
+		
 
 		/// <summary>
 		/// 關閉視窗Command
@@ -515,6 +538,8 @@ namespace ChatUI.ViewModel
 				ButtonGitClickCommand = new NoParameterCommand(ButtonGitClickCommandAction);
 				ShowSettingCommand = new NoParameterCommand(ShowSettingCommandAction);
 				ClearTextCommand = new NoParameterCommand(ClearTextCommandAction);
+				DownloadFileCommand = new NoParameterCommand(DownloadFileCommandAction);
+				DeleteFileCommand = new NoParameterCommand(DeleteFileCommandAction);
 			}
 			catch (Exception ex) 
 			{
@@ -523,31 +548,116 @@ namespace ChatUI.ViewModel
 			
 		}
 
+		public bool HasChinese (string str)
+		{
+			return Regex.IsMatch(str, @"[\u4e00-\u9fa5]");
+		}
+
+		private void DeleteFileCommandAction ()
+		{
+			try
+			{
+				FtpWebRequest request = (FtpWebRequest)WebRequest.Create($"ftp://10.93.9.117//{SelectedFile.FileName}");
+				request.Credentials = new NetworkCredential("anonymous", "anonymous@example.com");
+				request.Method = WebRequestMethods.Ftp.DeleteFile;
+				FtpWebResponse response = (FtpWebResponse)request.GetResponse();
+				response.Close();
+				ShowSettingCommandAction();
+				ShowSettingCommandAction();
+			}
+			catch(Exception ex) 
+			{
+				ShowMessage("通知", $"刪除檔案時發生例外 : {ex.Message}", NotificationType.Error);
+			}
+			
+		}
+
+		private void DownloadFileCommandAction ()
+		{
+			using (var fbd = new FolderBrowserDialog())
+			{
+				DialogResult result = fbd.ShowDialog();
+
+				if (result == DialogResult.OK && !string.IsNullOrWhiteSpace(fbd.SelectedPath))
+				{
+					try
+					{
+						string ftpServer = $"ftp://10.93.9.117//{SelectedFile.FileName}"; // FTP 服务器地址
+						WebClient client = new WebClient();
+						client.Credentials = new NetworkCredential("anonymous", "anonymous@example.com");
+						client.DownloadFile(ftpServer, $"{fbd.SelectedPath}//{SelectedFile.FileName}");
+						ShowMessage("通知", $"下載成功", NotificationType.Success);
+					}
+					catch(Exception ex) 
+					{
+						ShowMessage("通知", $"下載失敗 : {ex.Message}\r\n{ex.StackTrace}", NotificationType.Error);
+					}
+					
+				}
+			}
+		}
+
 		private void SendDataCommandAction()
 		{
-			OpenFileDialog dialog = new OpenFileDialog();
-			dialog.Multiselect = true;
-			if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+			try
 			{
-				string ftpServer = $"ftp://10.93.9.117/{dialog.SafeFileName}"; // FTP 服务器地址
-				string remoteFilePath = "/"; // 远程文件路径
-				string localFilePath = "local_file.txt"; // 本地文件路径，用于保存下载的文件
-
-				// 创建FTP请求对象
-				FtpWebRequest request = (FtpWebRequest)WebRequest.Create(new Uri(ftpServer));
-				request.Method = WebRequestMethods.Ftp.UploadFile;
-				request.Credentials = new NetworkCredential("anonymous", "anonymous@example.com"); // 匿名登录凭据
-				using (Stream fileStream = File.OpenRead(dialog.FileName))
-				using (Stream ftpStream = request.GetRequestStream())
+				OpenFileDialog dialog = new OpenFileDialog();
+				dialog.Multiselect = true;
+				if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
 				{
-					byte[] buffer = new byte[10240];
-					int read;
-					while ((read = fileStream.Read(buffer, 0, buffer.Length)) > 0)
+					if (HasChinese(dialog.SafeFileName))
 					{
-						ftpStream.Write(buffer, 0, read);
+						ShowMessage("通知", $"不能上傳包含中文的檔案", NotificationType.Warning);
+						return;
+					}
+					string ftpServer = $"ftp://10.93.9.117/{dialog.SafeFileName}"; // FTP 服务器地址
+
+					string tempFolder = System.IO.Path.GetTempPath();
+					//檢查是不是網路磁碟機，是的話先抓回來
+					if (dialog.FileName.Substring(0, 2).Equals("\\\\"))
+					{
+						File.Copy(dialog.FileName, tempFolder + "\\" + dialog.SafeFileName, true);
+
+
+						using (var client = new WebClient())
+						{
+							client.Credentials = new NetworkCredential("anonymous", "anonymous@example.com");
+							client.UploadFile(ftpServer, WebRequestMethods.Ftp.UploadFile, tempFolder + "\\" + dialog.SafeFileName);
+						}
+						ShowMessage("通知", $"上傳成功", NotificationType.Success);
+						
+
+
+						
+						FlyOutSettingIsOpen = true;
+						WebSocketClient.Send($"[{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}] {UserName}({CurrentIP}) : {ftpServer}\n");
+					}
+					else
+					{
+						// 创建FTP请求对象
+						FtpWebRequest request = (FtpWebRequest)WebRequest.Create(new Uri(ftpServer));
+						request.Method = WebRequestMethods.Ftp.UploadFile;
+						request.Credentials = new NetworkCredential("anonymous", "anonymous@example.com"); // 匿名登录凭据
+						using (Stream fileStream = File.OpenRead(dialog.FileName))
+						using (Stream ftpStream = request.GetRequestStream())
+						{
+							byte[] buffer = new byte[10240];
+							int read;
+							while ((read = fileStream.Read(buffer, 0, buffer.Length)) > 0)
+							{
+								ftpStream.Write(buffer, 0, read);
+							}
+						}
+						ShowMessage("通知", $"上傳成功", NotificationType.Success);
+						InPut = $"傳送檔案 : {ftpServer}";
+						SendMessage();
+						ShowSettingCommandAction();
 					}
 				}
-				WebSocketClient.Send($"[{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}] {UserName}({CurrentIP}) : {ftpServer}\n");
+			}
+			catch(Exception ex) 
+			{
+				ShowMessage("通知", $"上傳檔案時發生例外 {ex.Message}\r\n{ex.StackTrace}", NotificationType.Error);
 			}
 		}
 
@@ -562,11 +672,11 @@ namespace ChatUI.ViewModel
 		{
 			FlyOutSettingIsOpen = !FlyOutSettingIsOpen;
 			getFTPFileList();
-			FileList.Clear();
 		}
 
 		private void getFTPFileList()
 		{
+			FileList.Clear();
 			string ftpServer = "ftp://10.93.9.117"; // FTP 服务器地址
 
 			// 创建FTP请求对象
@@ -822,10 +932,28 @@ namespace ChatUI.ViewModel
 		{
 			if (!string.IsNullOrEmpty(InPut.Replace("\r", "").Replace("\n", "")))
 			{
+				string CryptoKey = "54088";
+				string result;
+				AesCryptoServiceProvider aes = new AesCryptoServiceProvider();
+				MD5CryptoServiceProvider md5 = new MD5CryptoServiceProvider();
+				SHA256CryptoServiceProvider sha256 = new SHA256CryptoServiceProvider();
+				byte[] key = sha256.ComputeHash(Encoding.UTF8.GetBytes(CryptoKey));
+				byte[] iv = md5.ComputeHash(Encoding.UTF8.GetBytes(CryptoKey));
+				aes.Key = key;
+				aes.IV = iv;
+
+				byte[] dataByteArray = Encoding.UTF8.GetBytes($"[{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}] {UserName}({CurrentIP}) : {InPut}\n");
+				using (MemoryStream ms = new MemoryStream())
+				using (CryptoStream cs = new CryptoStream(ms, aes.CreateEncryptor(), CryptoStreamMode.Write))
+				{
+					cs.Write(dataByteArray, 0, dataByteArray.Length);
+					cs.FlushFinalBlock();
+					result = Convert.ToBase64String(ms.ToArray());
+				}
 				//render message
 				//ChatText += $"[{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}] {UserName} : {InPut}";
 				//send message
-				WebSocketClient.Send($"[{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}] {UserName}({CurrentIP}) : {InPut}\n");
+				WebSocketClient.Send(result);
 				//clear input
 				PreviousInput = InPut;
 				InPut = "";

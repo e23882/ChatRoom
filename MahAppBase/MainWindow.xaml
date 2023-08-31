@@ -19,11 +19,12 @@
 
     <Window.Resources>
         <viewModel:Status x:Key="Status"/>
+        
     </Window.Resources>
     <controls:MetroWindow.InputBindings>
         <KeyBinding Gesture="Enter" Command="{Binding SendCommand}"/>
         <KeyBinding Gesture="Esc" Command="{Binding CloseCommand}"/>
-        <KeyBinding Gesture="Tab" Command="{Binding ShowSettingCommand}"/>
+        <KeyBinding Gesture="F1" Command="{Binding ShowSettingCommand}"/>
     </controls:MetroWindow.InputBindings>
     <Grid>
         <Grid.RowDefinitions>
@@ -94,7 +95,7 @@
     </Grid>
     <controls:MetroWindow.Flyouts>
         <controls:FlyoutsControl>
-            <controls:Flyout x:Name="flySetting" IsOpen="{Binding FlyOutSettingIsOpen}" Header="Setting" Theme="Light" Position="Left" Width="400">
+            <controls:Flyout x:Name="flySetting" IsOpen="{Binding FlyOutSettingIsOpen}" Header="Setting" Theme="Light" Position="Left" >
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="auto"/>
@@ -103,11 +104,40 @@
                     </Grid.RowDefinitions>
                     <StackPanel Orientation="Horizontal">
                         <Button Content="清除所有對話" Margin="5" Padding="10,5" FontSize="15" Command="{Binding ClearTextCommand}"/>
-                        <Button Content="清除所有對話" Margin="5" Padding="10,5" FontSize="15"/>
                     </StackPanel>
-                    <DataGrid Grid.Row="1" ItemsSource="{Binding FileList}" AutoGenerateColumns="False">
+                    <DataGrid Grid.Row="1" ItemsSource="{Binding FileList}" AutoGenerateColumns="False" SelectedItem="{Binding SelectedFile}" CanUserAddRows="False">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="檔名" Binding="{Binding FileName}"/>
+                            <DataGridTemplateColumn>
+                                <DataGridTemplateColumn.HeaderTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal" Width="100">
+                                            <ProgressBar  Foreground="White" Background="LightGreen"  Minimum="0" Maximum="100" IsIndeterminate="True" Width="100" Margin="5,0,0,0"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.HeaderTemplate>
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button Content="下載" Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type controls:MetroWindow}}, Path=DataContext.DownloadFileCommand}" CommandParameter="{Binding FileName}"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                                
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn>
+                                <DataGridTemplateColumn.HeaderTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal" Width="100">
+                                            <ProgressBar  Foreground="White" Background="LightGreen"  Minimum="0" Maximum="100" IsIndeterminate="True" Width="100" Margin="5,0,0,0"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.HeaderTemplate>
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button Content="刪除" Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type controls:MetroWindow}}, Path=DataContext.DeleteFileCommand}" CommandParameter="{Binding FileName}"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+
+                            </DataGridTemplateColumn>
                         </DataGrid.Columns>
                     </DataGrid>
                 </Grid>

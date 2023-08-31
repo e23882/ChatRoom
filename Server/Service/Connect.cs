@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using WebSocketSharp.Server;
 using WebSocketSharp;
 using System.Linq;
+using System.Text;
+using System.IO;
+using System.Security.Cryptography;
 
 namespace Server
 {
@@ -59,10 +62,30 @@ namespace Server
             }
             else
             {
+                string result;
+                string CryptoKey = "54088";
+                AesCryptoServiceProvider aes = new AesCryptoServiceProvider();
+                MD5CryptoServiceProvider md5 = new MD5CryptoServiceProvider();
+                SHA256CryptoServiceProvider sha256 = new SHA256CryptoServiceProvider();
+                byte[] key = sha256.ComputeHash(Encoding.UTF8.GetBytes(CryptoKey));
+                byte[] iv = md5.ComputeHash(Encoding.UTF8.GetBytes(CryptoKey));
+                aes.Key = key;
+                aes.IV = iv;
                 var data = e.Data;
+                byte[] dataByteArray = Convert.FromBase64String(data);
+                using (MemoryStream ms = new MemoryStream())
+                {
+                    using (CryptoStream cs = new CryptoStream(ms, aes.CreateDecryptor(), CryptoStreamMode.Write))
+                    {
+                        cs.Write(dataByteArray, 0, dataByteArray.Length);
+                        cs.FlushFinalBlock();
+                        result = Encoding.UTF8.GetString(ms.ToArray());
+                    }
+                }
+                
                 foreach (var item in ClientList) 
                 {
-                    item.Send(e.Data);
+                    item.Send(result);
                 }
             }
         }
