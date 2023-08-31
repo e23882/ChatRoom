@@ -13,28 +13,29 @@ using System.Diagnostics;
 using System.IO;
 using Newtonsoft.Json;
 using System.Threading;
-using System.Drawing;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 
 namespace ChatUI.ViewModel
 {
-	public class MainComponent : ViewModelBase
+	public class MainComponent: ViewModelBase
 	{
 		#region Declarations
-		private NotifyIcon nIcon = new NotifyIcon();
+		private FtpFile _SelectedFile = new FtpFile();
 
-		private ucDonate donate = new ucDonate();
+		private NotifyIcon nIcon = new NotifyIcon();
 
 		private WindowState _State;
 
 		private Visibility _MainWindowVisibility;
+		private Visibility _MainWindowVisibly = Visibility.Visible;
 
 		private bool _ShowInToolBar = true;
 		private bool _FlyOutSettingIsOpen = false;
 
 		private int _ShowMessageTime = 60;
+		private int _ConnectCount;
 
 		private string _ChatText;
 		private string _InPut;
@@ -48,28 +49,16 @@ namespace ChatUI.ViewModel
 		private ObservableCollection<string> _AllUser = new ObservableCollection<string>();
 
 		private ObservableCollection<FtpFile> _FileList = new ObservableCollection<FtpFile>();
-
-
-
-
-
-
-
-
-
-
-
-
 		#endregion
 
 		#region Property
-		public ObservableCollection<FtpFile> FileList 
+		public ObservableCollection<FtpFile> FileList
 		{
-			get 
+			get
 			{
 				return _FileList;
 			}
-			set 
+			set
 			{
 				_FileList = value;
 				OnPropertyChanged();
@@ -117,7 +106,6 @@ namespace ChatUI.ViewModel
 			}
 		}
 
-		private int _ConnectCount;
 		public int ConnectCount
 		{
 			get
@@ -131,7 +119,6 @@ namespace ChatUI.ViewModel
 			}
 		}
 
-		private FtpFile _SelectedFile = new FtpFile();
 		public FtpFile SelectedFile
 		{
 			get
@@ -214,24 +201,11 @@ namespace ChatUI.ViewModel
 			}
 		}
 
-		public NoParameterCommand ButtonImageSendCommand { get; set; }
-
-		/// <summary>
-		/// Donate click
-		/// </summary>
-		public NoParameterCommand ButtonDonateClickCommand
-		{
-			get;
-			set;
-		}
-
 		public NoParameterCommand ClearTextCommand
 		{
 			get;
 			set;
 		}
-
-		
 
 		/// <summary>
 		/// 主畫面顯示對話textbox物件實例(用在Scroll to end)
@@ -264,7 +238,6 @@ namespace ChatUI.ViewModel
 			}
 		}
 
-		private Visibility _MainWindowVisibly = Visibility.Visible;
 		public Visibility MainWindowVisibly
 		{
 			get
@@ -278,9 +251,9 @@ namespace ChatUI.ViewModel
 			}
 		}
 
-		public NoParameterCommand SendDataCommand 
+		public NoParameterCommand SendDataCommand
 		{
-			get;set;
+			get; set;
 		}
 
 		/// <summary>
@@ -300,15 +273,15 @@ namespace ChatUI.ViewModel
 			get;
 			set;
 		}
-		public NoParameterCommand DownloadFileCommand 
+		public NoParameterCommand DownloadFileCommand
 		{
-			get;set;
+			get; set;
 		}
 		public NoParameterCommand DeleteFileCommand
 		{
 			get; set;
 		}
-		
+
 
 		/// <summary>
 		/// 關閉視窗Command
@@ -319,9 +292,9 @@ namespace ChatUI.ViewModel
 			set;
 		}
 
-		public NoParameterCommand ShowSettingCommand 
+		public NoParameterCommand ShowSettingCommand
 		{
-			get;set;
+			get; set;
 		}
 
 		/// <summary>
@@ -343,15 +316,6 @@ namespace ChatUI.ViewModel
 				_ShowInToolBar = value;
 				OnPropertyChanged();
 			}
-		}
-
-		/// <summary>
-		/// Donate視窗是否開啟
-		/// </summary>
-		public bool DonateIsOpen
-		{
-			get;
-			set;
 		}
 
 		/// <summary>
@@ -382,15 +346,15 @@ namespace ChatUI.ViewModel
 					switch (_State)
 					{
 						case WindowState.Minimized:
-							nIcon.Visible = true;
-							ShowInToolBar = false;
-							MainWindowVisibly = Visibility.Hidden;
-							return _State;
+						nIcon.Visible = true;
+						ShowInToolBar = false;
+						MainWindowVisibly = Visibility.Hidden;
+						return _State;
 						case WindowState.Normal:
-							nIcon.Visible = false;
-							ShowInToolBar = true;
-							MainWindowVisibly = Visibility.Visible;
-							return _State;
+						nIcon.Visible = false;
+						ShowInToolBar = true;
+						MainWindowVisibly = Visibility.Visible;
+						return _State;
 					}
 				}
 				catch
@@ -409,7 +373,7 @@ namespace ChatUI.ViewModel
 				OnPropertyChanged();
 			}
 		}
-		
+
 		/// <summary>
 		/// 目前與WebSocket Server連線狀態
 		/// </summary>
@@ -425,15 +389,13 @@ namespace ChatUI.ViewModel
 				OnPropertyChanged();
 			}
 		}
-
-
 		#endregion
 
 		#region MemberFunction
 		/// <summary>
 		/// 按 "上" 按鈕 Command action
 		/// </summary>
-		public void PressUpButtonCommandAction()
+		public void PressUpButtonCommandAction ()
 		{
 			InPut = PreviousInput.Replace("\r", "").Replace("\n", "");
 		}
@@ -441,44 +403,35 @@ namespace ChatUI.ViewModel
 		/// <summary>
 		/// 初始化主程式工具列圖案、相關功能
 		/// </summary>
-		public void InitIcon()
+		public void InitIcon ()
 		{
 			nIcon.Icon = ChatUI.Properties.Resources.icon;
 			nIcon.Visible = false;
 			nIcon.MouseDoubleClick += NIcon_MouseDoubleClick;
 			#region Init Contextmenu
 			var cm = new System.Windows.Forms.ContextMenu();
-			try 
+			try
 			{
 				nIcon.Icon = ChatUI.Properties.Resources.icon;
 				nIcon.Visible = false;
 				nIcon.MouseDoubleClick += NIcon_MouseDoubleClick;
 				#region Init Contextmenu
-				var cm = new System.Windows.Forms.ContextMenu();
 
-			var miMax = new System.Windows.Forms.MenuItem();
-			miMax.Text = "放大";
-			miMax.Click += Mi_Click;
-			cm.MenuItems.Add(miMax);
 				var miMax = new System.Windows.Forms.MenuItem();
 				miMax.Text = "放大";
 				miMax.Click += Mi_Click;
 				cm.MenuItems.Add(miMax);
 
-			var miClose = new System.Windows.Forms.MenuItem();
-			miClose.Text = "關閉";
-			miClose.Click += Mi_Click;
-			cm.MenuItems.Add(miClose);
-			#endregion
-			nIcon.ContextMenu = cm;
 				var miClose = new System.Windows.Forms.MenuItem();
 				miClose.Text = "關閉";
 				miClose.Click += Mi_Click;
 				cm.MenuItems.Add(miClose);
 				#endregion
 				nIcon.ContextMenu = cm;
+				#endregion
+				nIcon.ContextMenu = cm;
 			}
-			catch(Exception ex) 
+			catch (Exception ex)
 			{
 				ShowMessage("通知", $"初始化ICon發生例外 {ex.Message}", NotificationType.Error);
 			}
@@ -489,7 +442,7 @@ namespace ChatUI.ViewModel
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
-		private void Mi_Click(object sender, EventArgs e)
+		private void Mi_Click (object sender, EventArgs e)
 		{
 			if ((sender as System.Windows.Forms.MenuItem) is null)
 				return;
@@ -497,19 +450,19 @@ namespace ChatUI.ViewModel
 			switch ((sender as System.Windows.Forms.MenuItem).Text)
 			{
 				case "放大":
-					State = WindowState.Normal;
-					break;
+				State = WindowState.Normal;
+				break;
 				case "關閉":
-					UserSetting currentSetting = new UserSetting();
-					currentSetting.UserName = UserName;
-					currentSetting.ShowTime = ShowMessageTime;
-					string currentSettingString = JsonConvert.SerializeObject(currentSetting, Formatting.Indented);
-					if (File.Exists("UserSetting.ini"))
-						File.Delete("UserSetting.ini");
-					File.WriteAllText("UserSetting.ini", currentSettingString);
-					KillAllProcess();
-					Environment.Exit(0);
-					break;
+				UserSetting currentSetting = new UserSetting();
+				currentSetting.UserName = UserName;
+				currentSetting.ShowTime = ShowMessageTime;
+				string currentSettingString = JsonConvert.SerializeObject(currentSetting, Formatting.Indented);
+				if (File.Exists("UserSetting.ini"))
+					File.Delete("UserSetting.ini");
+				File.WriteAllText("UserSetting.ini", currentSettingString);
+				KillAllProcess();
+				Environment.Exit(0);
+				break;
 			}
 		}
 
@@ -518,7 +471,7 @@ namespace ChatUI.ViewModel
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
-		private void NIcon_MouseDoubleClick(object sender, System.Windows.Forms.MouseEventArgs e)
+		private void NIcon_MouseDoubleClick (object sender, System.Windows.Forms.MouseEventArgs e)
 		{
 			State = WindowState.Normal;
 		}
@@ -526,11 +479,11 @@ namespace ChatUI.ViewModel
 		/// <summary>
 		/// 建構子
 		/// </summary>
-		public MainComponent()
+		public MainComponent ()
 		{
 			try
 			{
-				
+
 
 				var host = Dns.GetHostEntry(Dns.GetHostName());
 				foreach (var ip in host.AddressList)
@@ -557,17 +510,11 @@ namespace ChatUI.ViewModel
 			}
 		}
 
-		private void InitCommand()
+		private void InitCommand ()
 		{
-			ButtonDonateClickCommand = new NoParameterCommand(ButtonDonateClickAction);
-			SendMessageCommand = new NoParameterCommand(SendMessageCommandAction);
-			CloseCommand = new NoParameterCommand(CloseCommandAction);
-			ButtonGitClickCommand = new NoParameterCommand(ButtonGitClickCommandAction);
-			ButtonImageSendCommand = new NoParameterCommand(ButtonImageSendCommandAction);
-			try 
+			try
 			{
 				SendDataCommand = new NoParameterCommand(SendDataCommandAction);
-				ButtonDonateClickCommand = new NoParameterCommand(ButtonDonateClickAction);
 				SendMessageCommand = new NoParameterCommand(SendMessageCommandAction);
 				CloseCommand = new NoParameterCommand(CloseCommandAction);
 				ButtonGitClickCommand = new NoParameterCommand(ButtonGitClickCommandAction);
@@ -576,51 +523,14 @@ namespace ChatUI.ViewModel
 				DownloadFileCommand = new NoParameterCommand(DownloadFileCommandAction);
 				DeleteFileCommand = new NoParameterCommand(DeleteFileCommandAction);
 			}
-			catch (Exception ex) 
+			catch (Exception ex)
 			{
 				ShowMessage("通知", $"初始化命令發生例外 {ex.Message}", NotificationType.Error);
 			}
-			
 		}
 
-		private void ButtonImageSendCommandAction()
 		public bool HasChinese (string str)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 		{
-			OpenFileDialog openFileDialog1 = new OpenFileDialog
 			return Regex.IsMatch(str, @"[\u4e00-\u9fa5]");
 		}
 
@@ -628,8 +538,6 @@ namespace ChatUI.ViewModel
 		{
 			try
 			{
-				InitialDirectory = @"D:\",
-				Title = "選取圖片",
 				FtpWebRequest request = (FtpWebRequest)WebRequest.Create($"ftp://10.93.9.117//{SelectedFile.FileName}");
 				request.Credentials = new NetworkCredential("anonymous", "anonymous@example.com");
 				request.Method = WebRequestMethods.Ftp.DeleteFile;
@@ -638,26 +546,18 @@ namespace ChatUI.ViewModel
 				ShowSettingCommandAction();
 				ShowSettingCommandAction();
 			}
-			catch(Exception ex) 
+			catch (Exception ex)
 			{
 				ShowMessage("通知", $"刪除檔案時發生例外 : {ex.Message}", NotificationType.Error);
 			}
-			
+
 		}
 
-				CheckFileExists = true,
-				CheckPathExists = true,
-				RestoreDirectory = true,
-				ReadOnlyChecked = true,
-				ShowReadOnly = true
-			};
 		private void DownloadFileCommandAction ()
 		{
 			using (var fbd = new FolderBrowserDialog())
 			{
 				DialogResult result = fbd.ShowDialog();
-
-			if (openFileDialog1.ShowDialog() == DialogResult.OK)
 				if (result == DialogResult.OK && !string.IsNullOrWhiteSpace(fbd.SelectedPath))
 				{
 					try
@@ -668,40 +568,28 @@ namespace ChatUI.ViewModel
 						client.DownloadFile(ftpServer, $"{fbd.SelectedPath}//{SelectedFile.FileName}");
 						ShowMessage("通知", $"下載成功", NotificationType.Success);
 					}
-					catch(Exception ex) 
+					catch (Exception ex)
 					{
 						ShowMessage("通知", $"下載失敗 : {ex.Message}\r\n{ex.StackTrace}", NotificationType.Error);
 					}
-					
 				}
 			}
 		}
 
-		private void SendDataCommandAction()
+		private void SendDataCommandAction ()
 		{
 			try
 			{
-				using (Image image = Image.FromFile(openFileDialog1.FileName))
 				OpenFileDialog dialog = new OpenFileDialog();
-				dialog.Multiselect = true;
 				if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
 				{
-					using (MemoryStream m = new MemoryStream())
 					if (HasChinese(dialog.SafeFileName))
 					{
-						image.Save(m, image.RawFormat);
-						byte[] imageBytes = m.ToArray();
-
-
 						ShowMessage("通知", $"不能上傳包含中文的檔案", NotificationType.Warning);
 						return;
 					}
 					string ftpServer = $"ftp://10.93.9.117/{dialog.SafeFileName}"; // FTP 服务器地址
 
-						// Convert byte[] to Base64 String
-						string base64String = Convert.ToBase64String(imageBytes);
-						InPut = base64String;
-						SendMessage();
 					string tempFolder = System.IO.Path.GetTempPath();
 					//檢查是不是網路磁碟機，是的話先抓回來
 					if (dialog.FileName.Substring(0, 2).Equals("\\\\"))
@@ -715,10 +603,10 @@ namespace ChatUI.ViewModel
 							client.UploadFile(ftpServer, WebRequestMethods.Ftp.UploadFile, tempFolder + "\\" + dialog.SafeFileName);
 						}
 						ShowMessage("通知", $"上傳成功", NotificationType.Success);
-						
 
 
-						
+
+
 						FlyOutSettingIsOpen = true;
 						WebSocketClient.Send($"[{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}] {UserName}({CurrentIP}) : {ftpServer}\n");
 					}
@@ -745,26 +633,26 @@ namespace ChatUI.ViewModel
 					}
 				}
 			}
-			catch(Exception ex) 
+			catch (Exception ex)
 			{
 				ShowMessage("通知", $"上傳檔案時發生例外 {ex.Message}\r\n{ex.StackTrace}", NotificationType.Error);
 			}
 		}
 
-		private void ClearTextCommandAction()
+		private void ClearTextCommandAction ()
 		{
 			ChatText = "";
 			FlyOutSettingIsOpen = false;
 
 		}
 
-		private void ShowSettingCommandAction()
+		private void ShowSettingCommandAction ()
 		{
 			FlyOutSettingIsOpen = !FlyOutSettingIsOpen;
 			getFTPFileList();
 		}
 
-		private void getFTPFileList()
+		private void getFTPFileList ()
 		{
 			FileList.Clear();
 			string ftpServer = "ftp://10.93.9.117"; // FTP 服务器地址
@@ -784,20 +672,20 @@ namespace ChatUI.ViewModel
 						// 读取FTP服务器上的文件内容
 						string fileContent = reader.ReadToEnd();
 						var allFile = fileContent.Split(new string[] { "\r\n" }, StringSplitOptions.None);
-						foreach(var item in allFile)
+						foreach (var item in allFile)
 						{
 							if (item.Length < 3)
 								continue;
 							if (string.IsNullOrEmpty(item))
 								continue;
-							FileList.Add(new FtpFile() {FileName = item });
+							FileList.Add(new FtpFile() { FileName = item });
 						}
 					}
 				}
 			}
 		}
 
-		private void ButtonGitClickCommandAction()
+		private void ButtonGitClickCommandAction ()
 		{
 			var git = new ucGit();
 
@@ -808,7 +696,7 @@ namespace ChatUI.ViewModel
 		/// <summary>
 		/// 檢查設定是否存在
 		/// </summary>
-		private void ReadSetting()
+		private void ReadSetting ()
 		{
 			//如果設定存在讀取設定
 			if (File.Exists("UserSetting.ini"))
@@ -839,7 +727,7 @@ namespace ChatUI.ViewModel
 		/// <summary>
 		/// Kill所有殘留應用程式instance
 		/// </summary>
-		private void KillAllProcess()
+		private void KillAllProcess ()
 		{
 			foreach (var process in Process.GetProcessesByName("ChatUI"))
 			{
@@ -850,7 +738,7 @@ namespace ChatUI.ViewModel
 		/// <summary>
 		/// 關閉視窗按鈕觸發Command
 		/// </summary>
-		private void CloseCommandAction()
+		private void CloseCommandAction ()
 		{
 			State = WindowState.Minimized;
 		}
@@ -858,7 +746,7 @@ namespace ChatUI.ViewModel
 		/// <summary>
 		/// 傳送訊息
 		/// </summary>
-		private void SendMessageCommandAction()
+		private void SendMessageCommandAction ()
 		{
 			SendMessage();
 		}
@@ -866,7 +754,7 @@ namespace ChatUI.ViewModel
 		/// <summary>
 		/// 初始化Icon相關
 		/// </summary>
-		private void InitConnection()
+		private void InitConnection ()
 		{
 			try
 			{
@@ -892,7 +780,7 @@ namespace ChatUI.ViewModel
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
-		private void Ws_OnClose(object sender, CloseEventArgs e)
+		private void Ws_OnClose (object sender, CloseEventArgs e)
 		{
 			ConnectStatus = "伺服器中斷連線...嘗試重連....";
 			StatusBackGroundColor = System.Windows.Media.Brushes.Orange;
@@ -902,7 +790,7 @@ namespace ChatUI.ViewModel
 		/// <summary>
 		/// 初始化WebSocketClient
 		/// </summary>
-		private void InitialClient()
+		private void InitialClient ()
 		{
 			var server = ConfigurationSettings.AppSettings["Server"];
 			WebSocketClient = new WebSocket($"ws://{server}:5566/Connect");
@@ -930,7 +818,7 @@ namespace ChatUI.ViewModel
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
-		private void Ws_OnOpen(object sender, EventArgs e)
+		private void Ws_OnOpen (object sender, EventArgs e)
 		{
 			ConnectStatus = "伺服器連線成功!";
 		}
@@ -940,7 +828,7 @@ namespace ChatUI.ViewModel
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
-		private void Ws_OnMessage(object sender, MessageEventArgs e)
+		private void Ws_OnMessage (object sender, MessageEventArgs e)
 		{
 			var ws = (sender as WebSocket);
 
@@ -956,16 +844,16 @@ namespace ChatUI.ViewModel
 				var CurrentAddUserID = receiveData.Split(' ')[1];
 				App.Current.Dispatcher.Invoke((Action)delegate // <--- HERE
 				{
-					if (!AllUser.Contains(CurrentAddUserID.Split(':')[0])) 
 					if (!AllUser.Contains(CurrentAddUserID.Split(':')[0]))
-					{
-						AllUser.Add(CurrentAddUserID.Split(':')[0]);
-						ConnectCount++;
-					}
+						if (!AllUser.Contains(CurrentAddUserID.Split(':')[0]))
+						{
+							AllUser.Add(CurrentAddUserID.Split(':')[0]);
+							ConnectCount++;
+						}
 				});
 				return;
 			}
-			
+
 
 			if (receiveData.Contains("使用者") && receiveData.Contains("加入聊天"))
 			{
@@ -975,12 +863,12 @@ namespace ChatUI.ViewModel
 				{
 					App.Current.Dispatcher.Invoke((Action)delegate // <--- HERE
 					{
-						if (!AllUser.Contains(allLloginMessage[1].Split(':')[0])) 
 						if (!AllUser.Contains(allLloginMessage[1].Split(':')[0]))
-						{
-							AllUser.Add(allLloginMessage[1].Split(':')[0]);
-							ConnectCount++;
-						}
+							if (!AllUser.Contains(allLloginMessage[1].Split(':')[0]))
+							{
+								AllUser.Add(allLloginMessage[1].Split(':')[0]);
+								ConnectCount++;
+							}
 					});
 					return;
 				}
@@ -993,17 +881,17 @@ namespace ChatUI.ViewModel
 				{
 					App.Current.Dispatcher.Invoke((Action)delegate // <--- HERE
 					{
-						if (!AllUser.Contains(allLloginMessage[1].Split(':')[0])) 
 						if (!AllUser.Contains(allLloginMessage[1].Split(':')[0]))
-						{
-							AllUser.Remove(allLloginMessage[1].Split(':')[0]);
-							ConnectCount++;
-						}
+							if (!AllUser.Contains(allLloginMessage[1].Split(':')[0]))
+							{
+								AllUser.Remove(allLloginMessage[1].Split(':')[0]);
+								ConnectCount++;
+							}
 					});
 					return;
 				}
 			}
-			
+
 
 
 
@@ -1060,7 +948,7 @@ namespace ChatUI.ViewModel
 				ShowMessage("通知", receiveData, NotificationType.Success);
 
 			}
-			if (this.ChatTextBox != null) 
+			if (this.ChatTextBox != null)
 			{
 				App.Current.Dispatcher.Invoke((Action)delegate // <--- HERE
 				{
@@ -1087,16 +975,15 @@ namespace ChatUI.ViewModel
 		/// <summary>
 		/// 傳送訊息
 		/// </summary>
-		public void SendMessage()
+		public void SendMessage ()
 		{
+			if (string.IsNullOrEmpty(InPut))
+			{
+				return;
+			}
 			if (!string.IsNullOrEmpty(InPut.Replace("\r", "").Replace("\n", "")))
 			{
-				//render message
-				//ChatText += $"[{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}] {UserName} : {InPut}";
-				//send message
 				WebSocketClient.Send($"[{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}] {UserName}({CurrentIP}) : {InPut}\n");
-				//clear input
-
 				string CryptoKey = "54088";
 				string result;
 				AesCryptoServiceProvider aes = new AesCryptoServiceProvider();
@@ -1115,11 +1002,7 @@ namespace ChatUI.ViewModel
 					cs.FlushFinalBlock();
 					result = Convert.ToBase64String(ms.ToArray());
 				}
-				//render message
-				//ChatText += $"[{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}] {UserName} : {InPut}";
-				//send message
 				WebSocketClient.Send(result);
-				//clear input
 				PreviousInput = InPut;
 				InPut = "";
 			}
@@ -1131,48 +1014,17 @@ namespace ChatUI.ViewModel
 		/// <param name="title"></param>
 		/// <param name="message"></param>
 		/// <param name="type"></param>
-		public void ShowMessage(string title, string message, NotificationType type)
+		public void ShowMessage (string title, string message, NotificationType type)
 		{
 			var notificationManager = new NotificationManager();
-		
 			var ts = TimeSpan.FromSeconds(ShowMessageTime);
-
 			notificationManager.Show(new NotificationContent
 			{
 				Title = title,
 				Message = message,
 				Type = type,
-			}, "", ts, ()=> State = WindowState.Normal);
-
+			}, "", ts, () => State = WindowState.Normal);
 		}
-
-		/// <summary>
-		/// Donate功能Click Command
-		/// </summary>
-		public void ButtonDonateClickAction()
-		{
-			if (!DonateIsOpen)
-			{
-				donate = new ucDonate
-				{
-					Topmost = true
-				};
-				donate.Closed += Donate_Closed;
-				DonateIsOpen = true;
-				donate.Show();
-			}
-		}
-
-		/// <summary>
-		/// Donate功能關閉事件
-		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="e"></param>
-		private void Donate_Closed(object sender, EventArgs e)
-		{
-			DonateIsOpen = false;
-		}
-
 		#endregion
 	}
 }
