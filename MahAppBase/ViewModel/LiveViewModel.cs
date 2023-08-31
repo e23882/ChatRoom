@@ -54,6 +54,7 @@ namespace ChatUI.ViewModel
 
         public string ServerIP { get; set; }
         public WebSocketSharp.WebSocket ws { get; set; }
+        
         #endregion
 
         #region Memberfunction
@@ -64,18 +65,25 @@ namespace ChatUI.ViewModel
         }
         public void InitialClient ()
         {
-            ws = new WebSocketSharp.WebSocket($"ws://{ServerIP}:6842/Connect");
-            ws.OnMessage += Ws_OnMessage;
-            ws.OnOpen += Ws_OnOpen;
-            ws.OnClose += Ws_OnClose;
-            ws.Connect();
+			try
+			{
+                ws = new WebSocketSharp.WebSocket($"ws://{ServerIP}:6842/Connect");
+                ws.OnMessage += Ws_OnMessage;
+                ws.OnOpen += Ws_OnOpen;
+                ws.OnClose += Ws_OnClose;
+                ws.Connect();
+                
+            }
+            catch(Exception ex) 
+            {
+
+            }
+            
             Status = "伺服器連線成功!";
         }
 
         private void Ws_OnClose (object sender, CloseEventArgs e)
         {
-            Status = "伺服器中斷連線...嘗試重連....";
-            InitialClient();
         }
 
         private void Ws_OnOpen (object sender, EventArgs e)

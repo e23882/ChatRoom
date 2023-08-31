@@ -577,8 +577,16 @@ namespace ChatUI.ViewModel
 			Live live = new Live();
 			
 			LiveViewModel viewModel = new LiveViewModel(SelectedListBoxItem);
-			live.DataContext = viewModel;
-			live.Show();
+			if (viewModel.ws.IsAlive)
+			{
+				live.DataContext = viewModel;
+				live.Show();
+			}
+			else
+			{
+				ShowMessage("通知", $"目標主機沒有在監聽", NotificationType.Warning);
+			}
+			
 		}
 
 		private void UpgradeCommandAction ()
