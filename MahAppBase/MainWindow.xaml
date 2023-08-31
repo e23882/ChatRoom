@@ -19,13 +19,48 @@
 
     <Window.Resources>
         <viewModel:Status x:Key="Status"/>
+
         
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     </Window.Resources>
     <controls:MetroWindow.InputBindings>
         <KeyBinding Gesture="Enter" Command="{Binding SendCommand}"/>
         <KeyBinding Gesture="Esc" Command="{Binding CloseCommand}"/>
         <KeyBinding Gesture="F1" Command="{Binding ShowSettingCommand}"/>
     </controls:MetroWindow.InputBindings>
+    <controls:MetroWindow.RightWindowCommands >
+        <controls:WindowCommands>
+            <Button Command="{Binding ButtonDonateClickCommand}">
+                <StackPanel Orientation="Horizontal">
+                    <iconPacks:PackIconModern Width="24" Height="24" Kind="Beer" />
+                    <TextBlock Margin="4 0 0 0" VerticalAlignment="Center" Text="Donate Developer" />
+                </StackPanel>
+            </Button>
+            <Button Command="{Binding ButtonGitClickCommand}">
+                <StackPanel Orientation="Horizontal">
+                    <iconPacks:PackIconModern Width="15" Kind="Tools" />
+                    <TextBlock Margin="4 0 0 0" VerticalAlignment="Center" Text="Git" />
+                </StackPanel>
+            </Button>
+        </controls:WindowCommands>
+    </controls:MetroWindow.RightWindowCommands>
+    
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
@@ -42,7 +77,9 @@
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="auto"/>
                     </Grid.ColumnDefinitions>
+                    <TextBox Grid.Row="0" Grid.Column="0" x:Name="tbChat" TextWrapping="Wrap" AcceptsReturn="True" Text="{Binding ChatText}" VerticalScrollBarVisibility="Auto" Background="LightGray"/>
                     <TextBox Grid.Row="0" Grid.Column="0" x:Name="tbChat"  TextWrapping="Wrap" IsReadOnly="True" AcceptsReturn="True" Text="{Binding ChatText}" VerticalScrollBarVisibility="Auto" Background="LightGray"/>
+
                     <GridSplitter Grid.Row="0" Background="Black" VerticalAlignment="Stretch"  Width="1.5"/>
                     <ListBox Grid.Row="0" Grid.Column="1" MinWidth="130" ItemsSource="{Binding AllUser}"/>
 
@@ -69,9 +106,25 @@
                         </StackPanel>
                         <TextBox TextWrapping="Wrap" AcceptsReturn="True" Grid.Row="1" Grid.Column="0" KeyUp="TextBox_KeyUp" Text="{Binding InPut, UpdateSourceTrigger=PropertyChanged}"/>
                         <StackPanel Grid.Row="1"  Grid.Column="1" Orientation="Horizontal">
+                            <Button Command="{Binding ButtonImageSendCommand}">
+                                <StackPanel Orientation="Horizontal">
+                                    <iconPacks:PackIconModern Width="20" Kind="Image" />
+                                </StackPanel>
+                            </Button>
+                            <Button Content="SEND" Padding="20,0" Grid.Row="1"  Grid.Column="1" FontSize="15" Command="{Binding SendMessageCommand}"/>
                             <Button Content="傳送檔案" Padding="10,0" Grid.Row="1"  Grid.Column="1" FontSize="15" Command="{Binding SendDataCommand}"/>
                             <Button Content="SEND" Padding="10,0" Grid.Row="1"  Grid.Column="1" FontSize="15" Command="{Binding SendMessageCommand}"/>
+
+
+
+
+
+
+
+
+
                         </StackPanel>
+                            
                     </Grid>
                 </Grid>
             </controls:MetroTabItem>
