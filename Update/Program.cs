@@ -2,16 +2,21 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Net;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Update
 {
-	class Program
+	public class Program
 	{
+		#region Declarations
 		public static List<string> FileList = new List<string>();
+		#endregion
+
+		#region Memberfunction
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="args"></param>
 		static void Main (string[] args)
 		{
 			//取得要更新的檔案清單
@@ -22,11 +27,20 @@ namespace Update
 				StartChatUI();
 			}
 		}
-		public static void StartChatUI () 
+		
+		/// <summary>
+		/// 重新啟動聊天室 Client UI
+		/// </summary>
+		public static void StartChatUI ()
 		{
 			Process.Start("ChatUI.exe");
 		}
-		public static bool Download () 
+		
+		/// <summary>
+		/// 從FTP下載檔案
+		/// </summary>
+		/// <returns></returns>
+		public static bool Download ()
 		{
 			try
 			{
@@ -40,7 +54,7 @@ namespace Update
 				Console.WriteLine($"下載檔案成功");
 				return true;
 			}
-			catch(Exception ex) 
+			catch (Exception ex)
 			{
 				Console.WriteLine($"下載檔案失敗 : {ex.Message}\r\n{ex.StackTrace}");
 				Console.Read();
@@ -48,6 +62,9 @@ namespace Update
 			}
 		}
 
+		/// <summary>
+		/// 取得FTP檔案清單
+		/// </summary>
 		private static void GetFileList ()
 		{
 			try
@@ -78,10 +95,11 @@ namespace Update
 				}
 				Console.WriteLine($"取得更新檔案清單成功");
 			}
-			catch(Exception ex) 
+			catch (Exception ex)
 			{
 				Console.WriteLine($"取得更新檔案清單發生例外 : {ex.Message}\r\n{ex.StackTrace}");
 			}
 		}
+		#endregion
 	}
 }

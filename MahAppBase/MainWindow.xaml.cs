@@ -1,10 +1,9 @@
 ﻿using System;
 using System.ComponentModel;
-using System.IO;
-using System.Net;
+using System.Diagnostics;
+using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Input;
-using ChatUI.ViewModel;
 using MahApps.Metro.Controls;
 
 namespace ChatUI
@@ -19,21 +18,38 @@ namespace ChatUI
 		#endregion
 
 		#region Memberfunction
+		/// <summary>
+		/// 主視窗建構子
+		/// </summary>
 		public MainWindow ()
 		{
 			InitializeComponent();
 			viewModel = new MainComponent();
+			viewModel.ChatTextBox = tbChat;
 			this.DataContext = viewModel;
 		}
+
+		/// <summary>
+		/// 關閉視窗事件
+		/// </summary>
+		/// <param name="e"></param>
 		protected override void OnClosing (CancelEventArgs e)
 		{
 			viewModel.State = WindowState.Minimized;
 			e.Cancel = true;
 			base.OnClosing(e);
 		}
-		private void MetroWindow_Closed (object sender, EventArgs e){}
+
+		bool isChoosingWord = false;
+		string PreviousText = "";
+		/// <summary>
+		/// 輸入訊息元件按下上事件
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
 		private void TextBox_KeyUp (object sender, System.Windows.Input.KeyEventArgs e)
 		{
+
 			if (e.Key == Key.Up)
 			{
 				viewModel.PressUpButtonCommandAction();
@@ -41,9 +57,40 @@ namespace ChatUI
 			}
 			if (e.Key != Key.Enter)
 				return;
-
-			viewModel.SendMessage();
+			AttachConsole(ATTACH_PARENT_PROCESS);
+			Console.WriteLine($"InputEnter");
+			//按下Enter且在選字模式 > 不送訊息出去
+			if (!isChoosingWord)
+			{
+				viewModel.SendMessage();
+				PreviousText = "";
+			}
+			
 		}
 		#endregion
+		int wordLength = 0;
+		[DllImport("kernel32.dll")]
+		static extern bool AttachConsole (uint dwProcessId);
+
+		const uint ATTACH_PARENT_PROCESS = 0x0ffffffff;
+		private void TextBox_TextChanged (object sender, System.Windows.Controls.TextChangedEventArgs e)
+		{
+			AttachConsole(ATTACH_PARENT_PROCESS);
+			Console.WriteLine($"textChange");
+			//前一次的字數比目前多 : 輸入法在選字
+			//if (wordLength > (sender as System.Windows.Controls.TextBox).Text.Length)
+			//{
+			//	Console.WriteLine($"Original : {wordLength}");
+			//	Console.WriteLine($"Current : {(sender as System.Windows.Controls.TextBox).Text.Length}");
+			//	isChoosingWord = true;
+			//}
+			//else
+			//{
+			//	isChoosingWord = false;
+			//}
+			////Console.WriteLine($"Original : {wordLength}");
+			////Console.WriteLine($"Current : {(sender as System.Windows.Controls.TextBox).Text.Length}");
+			//wordLength = (sender as System.Windows.Controls.TextBox).Text.Length;
+		}
 	}
 }

@@ -3,134 +3,100 @@ using System.IO;
 using System.Windows.Media.Imaging;
 using WebSocketSharp;
 
-namespace ChatUI.ViewModel
+namespace ChatUI
 {
-    public class LiveViewModel: ViewModelBase
-    {
-        #region Declarations
-        private BitmapImage _Source = new BitmapImage();
-        private string _MB;
-        private string _Status;
+	public class LiveViewModel: ViewModelBase
+	{
+		#region Declarations
+		private BitmapImage _Source = new BitmapImage();
+		#endregion
 
-        #endregion
+		#region Property
+		/// <summary>
+		/// 分享畫面的圖片
+		/// </summary>
+		public BitmapImage Source
+		{
+			get
+			{
+				return _Source;
+			}
+			set
+			{
+				_Source = value;
+				OnPropertyChanged();
+			}
+		}
 
-        #region Property
-        public BitmapImage Source
-        {
-            get
-            {
-                return _Source;
-            }
-            set
-            {
-                _Source = value;
-                OnPropertyChanged();
-            }
-        }
-        public string Status
-        {
-            get
-            {
-                return _Status;
-            }
-            set
-            {
-                _Status = value;
-                OnPropertyChanged();
-            }
-        }
-        public string MB
-        {
-            get
-            {
-                return _MB;
-            }
-            set
-            {
-                _MB = value;
-                OnPropertyChanged();
-            }
-        }
+		/// <summary>
+		/// 分享畫面的使用者IP
+		/// </summary>
+		public string ServerIP { get; set; }
 
-        public string ServerIP { get; set; }
-        public WebSocketSharp.WebSocket ws { get; set; }
-        
-        #endregion
+		/// <summary>
+		/// WebClient物件實例
+		/// </summary>
+		public WebSocket webSocketClient { get; set; }
 
-        #region Memberfunction
-        public LiveViewModel (string selectedListBoxItem)
-        {
-            ServerIP = selectedListBoxItem;
-            InitialClient();
-        }
-        public void InitialClient ()
-        {
+		#endregion
+
+		#region Memberfunction
+		/// <summary>
+		/// 觀看分享畫面視窗ViewModel
+		/// </summary>
+		/// <param name="selectedListBoxItem"></param>
+		public LiveViewModel (string selectedListBoxItem)
+		{
+			ServerIP = selectedListBoxItem;
+			InitialClient();
+		}
+
+		/// <summary>
+		/// 初始化WebSocket Client
+		/// </summary>
+		public void InitialClient ()
+		{
 			try
 			{
-                ws = new WebSocketSharp.WebSocket($"ws://{ServerIP}:6842/Connect");
-                ws.OnMessage += Ws_OnMessage;
-                ws.OnOpen += Ws_OnOpen;
-                ws.OnClose += Ws_OnClose;
-                ws.Connect();
-                
-            }
-            catch(Exception ex) 
-            {
+				webSocketClient = new WebSocket($"ws://{ServerIP}:6842/Connect");
+				webSocketClient.OnMessage += Ws_OnMessage;
+				webSocketClient.Connect();
+			}
+			catch { }
+		}
 
-            }
-            
-            Status = "伺服器連線成功!";
-        }
+		/// <summary>
+		/// WebSocket Clinet收到訊息
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
+		private void Ws_OnMessage (object sender, MessageEventArgs e)
+		{
+			var ws = (sender as WebSocket);
 
-        private void Ws_OnClose (object sender, CloseEventArgs e)
-        {
-        }
+			if (ws is null)
+			{
+				return;
+			}
 
-        private void Ws_OnOpen (object sender, EventArgs e)
-        {
-            Console.WriteLine("Connected");
-        }
-        private void Ws_OnMessage (object sender, MessageEventArgs e)
-        {
-            var ws = (sender as WebSocketSharp.WebSocket);
+			string receiveData = e.Data;
+			switch (receiveData)
+			{
+				case "CLOSE":
+				Console.WriteLine("hit");
+				break;
+				default:
+				byte[] binaryData = Convert.FromBase64String(receiveData);
 
-            if (ws is null)
-            {
-                return;
-            }
-
-            string receiveData = e.Data;
-            switch (receiveData)
-            {
-                case "CLOSE":
-                Console.WriteLine("hit");
-                break;
-                default:
-                byte[] binaryData = Convert.FromBase64String(receiveData);
-
-                BitmapImage bi = new BitmapImage();
-                bi.BeginInit();
-                bi.StreamSource = new MemoryStream(binaryData);
-                MB = Math.Round(((binaryData.Length / 1024f) / 1024f), 2).ToString();
-                bi.EndInit();
-                bi.Freeze();
-                Source = bi;
-                break;
-            }
-
-        }
-        public void SaveImage (BitmapImage image, string localFilePath)
-        {
-            image.DownloadCompleted += (sender, args) =>
-            {
-                var encoder = new PngBitmapEncoder();
-                encoder.Frames.Add(BitmapFrame.Create((BitmapImage)sender));
-                using (var filestream = new FileStream(localFilePath, FileMode.Create))
-                {
-                    encoder.Save(filestream);
-                }
-            };
-        }
-        #endregion
-    }
+				BitmapImage bi = new BitmapImage();
+				bi.BeginInit();
+				bi.StreamSource = new MemoryStream(binaryData);
+				bi.EndInit();
+				bi.Freeze();
+				Source = bi;
+				break;
+			}
+		}
+		#endregion
+	}
 }

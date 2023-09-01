@@ -1,21 +1,27 @@
-﻿using ChatUI.ViewModel;
-
-namespace ChatUI
+﻿namespace ChatUI
 {
-	public class FtpFile:ViewModelBase
+	public class FtpFile: ViewModelBase
 	{
+		#region Declarations
 		public string _FileName = string.Empty;
-		public string FileName 
+		#endregion
+
+		#region Property
+		/// <summary>
+		/// FTP 檔案名稱
+		/// </summary>
+		public string FileName
 		{
-			get 
+			get
 			{
 				return _FileName;
 			}
-			set 
+			set
 			{
 				_FileName = value;
 				OnPropertyChanged();
 			}
 		}
+		#endregion
 	}
 }

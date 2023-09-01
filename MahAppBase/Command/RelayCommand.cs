@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Input;
 
-namespace ChatUI.Command
+namespace ChatUI
 {
     /// <summary>
     /// 有參數共用Command

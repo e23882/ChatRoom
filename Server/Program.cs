@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Threading;
-using System.Windows.Forms;
 
 namespace Server
 {
@@ -10,16 +8,13 @@ namespace Server
         public static Server service = null;
         #endregion
 
-        #region Memberfunction
-        #endregion
         public static void Main(string[] args) 
         {
-            Server server = new Server(5577);
+            Server server = new Server(5566);
             server.Start();
             Console.WriteLine("WebSocket server started. Press any key to stop.");
             Console.ReadKey();
             server.Stop();
-
         }
     }
 }

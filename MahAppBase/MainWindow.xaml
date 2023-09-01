@@ -4,7 +4,6 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
-        xmlns:viewModel="clr-namespace:ChatUI.ViewModel"
         xmlns:local="clr-namespace:ChatUI"
         xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
         xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
@@ -14,15 +13,14 @@
         WindowState="{Binding State}" 
         ShowInTaskbar="{Binding ShowInToolBar}"  
         Visibility="{Binding MainWindowVisibly}" 
-        Topmost="True"
-        Closed="MetroWindow_Closed">
+        Topmost="True">
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="Closed">
             <i:InvokeCommandAction Command="{Binding MainWindowClosed}"/>
         </i:EventTrigger>
     </i:Interaction.Triggers>
     <Window.Resources>
-        <viewModel:Status x:Key="Status"/>
+        <local:Status x:Key="Status"/>
     </Window.Resources>
     <controls:MetroWindow.InputBindings>
         <KeyBinding Gesture="Enter" Command="{Binding SendCommand}"/>
@@ -45,7 +43,9 @@
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="auto"/>
                     </Grid.ColumnDefinitions>
-                    <TextBox Grid.Row="0" Grid.Column="0" x:Name="tbChat"  TextWrapping="Wrap" IsReadOnly="True" AcceptsReturn="True" Text="{Binding ChatText}" VerticalScrollBarVisibility="Auto" Background="LightGray"/>
+                    <TextBox Grid.Row="0" Grid.Column="0" x:Name="tbChat"  TextWrapping="Wrap" IsReadOnly="True" 
+                             AcceptsReturn="True" Text="{Binding ChatText}" 
+                             VerticalScrollBarVisibility="Auto" Background="LightGray"/>
 
                     <GridSplitter Grid.Row="0" Background="Black" VerticalAlignment="Stretch"  Width="1.5"/>
                     <ListBox Grid.Row="0" Grid.Column="1" MinWidth="130" ItemsSource="{Binding AllUser}" SelectedValue="{Binding SelectedListBoxItem}">
@@ -77,7 +77,7 @@
                             <iconPacks:PackIconModern Width="26"  Kind="People" VerticalAlignment="Center" Margin="50,0,0,0"/>
                             <TextBlock Text="{Binding ConnectCount}" VerticalAlignment="Center" FontSize="18"/>
                         </StackPanel>
-                        <TextBox TextWrapping="Wrap" AcceptsReturn="True" Grid.Row="1" Grid.Column="0" KeyUp="TextBox_KeyUp" Text="{Binding InPut, UpdateSourceTrigger=PropertyChanged}"/>
+                        <TextBox TextWrapping="Wrap" AcceptsReturn="True" Grid.Row="1" Grid.Column="0" KeyUp="TextBox_KeyUp" TextChanged="TextBox_TextChanged" Text="{Binding InPut, UpdateSourceTrigger=PropertyChanged}"/>
                         <StackPanel Grid.Row="1"  Grid.Column="1" Orientation="Horizontal">
                             <Button Content="傳送檔案" Padding="10,0" Grid.Row="1"  Grid.Column="1" FontSize="15" Command="{Binding SendDataCommand}"/>
                             <Button Content="SEND" Padding="10,0" Grid.Row="1"  Grid.Column="1" FontSize="15" Command="{Binding SendMessageCommand}"/>

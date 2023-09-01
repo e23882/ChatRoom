@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace ChatUI.ViewModel
+namespace ChatUI
 {
     /// <summary>
     /// 框架狀態，包含目前記憶體、CPU使用率
@@ -12,9 +12,10 @@ namespace ChatUI.ViewModel
     {
         #region Declarations
         private static PerformanceCounter _cpu = new PerformanceCounter("Processor", "% Processor Time", "_Total");
-        private static PerformanceCounter _memory = new PerformanceCounter("Memory", "% Committed Bytes in Use");
+
         private static float _Cpu;
         private static float _Memory;
+
         private Task thUpdatStatus;
         #endregion
 
@@ -24,8 +25,15 @@ namespace ChatUI.ViewModel
         /// </summary>
         public float Cpu
         {
-            get { return _Cpu; }
-            set { _Cpu = value; OnPropertyChanged("Cpu"); }
+            get 
+            {
+                return _Cpu; 
+            }
+            set
+            {
+                _Cpu = value; 
+                OnPropertyChanged("Cpu"); 
+            }
         }
 
         /// <summary>
@@ -33,8 +41,15 @@ namespace ChatUI.ViewModel
         /// </summary>
         public float Memory
         {
-            get { return _Memory; }
-            set { _Memory = value; OnPropertyChanged("Memory"); }
+            get
+            {
+                return _Memory; 
+            }
+            set
+            {
+                _Memory = value; 
+                OnPropertyChanged("Memory"); 
+            }
         }
         #endregion
 
@@ -45,11 +60,11 @@ namespace ChatUI.ViewModel
         public Status()
         {
             //初始化、啟動獲取程式狀態Task
-            this.thUpdatStatus = new Task(() => { CatchPcStatus(); });
+            this.thUpdatStatus = new Task(() => { GetPcStatus(); });
             thUpdatStatus.Start();
         }
 
-        public void CatchPcStatus()
+        public void GetPcStatus()
         {
             using (Process pro = Process.GetProcessesByName("ChatUI")[0])
             {

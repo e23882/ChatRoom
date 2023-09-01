@@ -5,7 +5,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{E98EF724-AD6A-43EE-A3EB-4BE839E7189E}</ProjectGuid>
-    <OutputType>WinExe</OutputType>
+    <OutputType>Exe</OutputType>
     <RootNamespace>ChatUI</RootNamespace>
     <AssemblyName>ChatUI</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
@@ -51,6 +51,9 @@
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>icon.ico</ApplicationIcon>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="ControlzEx, Version=3.0.2.4, Culture=neutral, processorArchitecture=MSIL">
@@ -99,17 +102,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Command\CommonCommand.cs" />
     <Compile Include="Command\NoParameterCommand.cs" />
     <Compile Include="Command\RelayCommand.cs" />
     <Compile Include="CustomerUserControl\Live.xaml.cs">
       <DependentUpon>Live.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="CustomerUserControl\ucDonate.xaml.cs">
-      <DependentUpon>ucDonate.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="CustomerUserControl\ucGit.xaml.cs">
-      <DependentUpon>ucGit.xaml</DependentUpon>
     </Compile>
     <Compile Include="Model\FtpFile.cs" />
     <Compile Include="Model\UserSetting.cs" />
@@ -120,14 +116,6 @@
     <Compile Include="ViewModel\Status.cs" />
     <Compile Include="ViewModel\ViewModelBase.cs" />
     <Page Include="CustomerUserControl\Live.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="CustomerUserControl\ucDonate.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="CustomerUserControl\ucGit.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -188,9 +176,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\geo_location_pushpin_icon_218607.ico" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Image\Donate.jpg" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\icon.ico" />
