@@ -25,7 +25,6 @@ namespace ChatUI
 		{
 			InitializeComponent();
 			viewModel = new MainComponent();
-			viewModel.ChatTextBox = tbChat;
 			this.DataContext = viewModel;
 		}
 
@@ -60,12 +59,14 @@ namespace ChatUI
 			AttachConsole(ATTACH_PARENT_PROCESS);
 			Console.WriteLine($"InputEnter");
 			//按下Enter且在選字模式 > 不送訊息出去
-			if (!isChoosingWord)
+			if (wordLength == (sender as System.Windows.Controls.TextBox).Text.Length && isChoosingWord)
 			{
-				viewModel.SendMessage();
-				PreviousText = "";
+				return;
+				
 			}
-			
+			viewModel.SendMessage();
+			PreviousText = "";
+
 		}
 		#endregion
 		int wordLength = 0;
@@ -75,8 +76,22 @@ namespace ChatUI
 		const uint ATTACH_PARENT_PROCESS = 0x0ffffffff;
 		private void TextBox_TextChanged (object sender, System.Windows.Controls.TextChangedEventArgs e)
 		{
+			
 			AttachConsole(ATTACH_PARENT_PROCESS);
 			Console.WriteLine($"textChange");
+
+			Console.WriteLine($"Original : {wordLength}");
+			Console.WriteLine($"Current : {(sender as System.Windows.Controls.TextBox).Text.Length}");
+			//選字
+			if(wordLength == (sender as System.Windows.Controls.TextBox).Text.Length)
+			{
+				isChoosingWord = true;
+			}
+			else
+			{
+				isChoosingWord = false;
+			}
+			wordLength = (sender as System.Windows.Controls.TextBox).Text.Length;
 			//前一次的字數比目前多 : 輸入法在選字
 			//if (wordLength > (sender as System.Windows.Controls.TextBox).Text.Length)
 			//{
@@ -91,6 +106,11 @@ namespace ChatUI
 			////Console.WriteLine($"Original : {wordLength}");
 			////Console.WriteLine($"Current : {(sender as System.Windows.Controls.TextBox).Text.Length}");
 			//wordLength = (sender as System.Windows.Controls.TextBox).Text.Length;
+		}
+
+		private void tbChat_TextChanged (object sender, System.Windows.Controls.TextChangedEventArgs e)
+		{
+			tbChat.ScrollToEnd();
 		}
 	}
 }

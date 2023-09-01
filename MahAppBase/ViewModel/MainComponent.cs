@@ -14,6 +14,7 @@ using System.Threading;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Linq;
 
 namespace ChatUI
 {
@@ -35,23 +36,39 @@ namespace ChatUI
 		private bool _ShowInToolBar = true;
 		private bool _FlyOutSettingIsOpen = false;
 		private bool _ShareScreen;
+		private bool _Notify = true;
 
-		private int _ShowMessageTime = 60;
+
+		private int _ShowMessageTime = 3;
 		private int _ConnectCount;
 
-		private string _ChatText;
-		private string _InPut;
-		private string _UserName;
+		private string _ChatText = string.Empty;
+		private string _InPut = string.Empty;
+		private string _UserName = string.Empty;
 		private string _ConnectStatus = string.Empty;
+		private string _UpdateBadgeText = "Update";
+
 
 		private System.Windows.Media.Brush _StatusBackGroundColor;
-		private System.Windows.Controls.TextBox _ChatTextBox;
 
-		private ObservableCollection<string> _AllUser = new ObservableCollection<string>();
+		private ObservableCollection<UserInfo> _AllUser = new ObservableCollection<UserInfo>();
 		private ObservableCollection<FtpFile> _FileList = new ObservableCollection<FtpFile>();
 		#endregion
 
 		#region Property
+		public string UpdateBadgeText
+		{
+			get
+			{
+				return _UpdateBadgeText;
+			}
+			set
+			{
+				_UpdateBadgeText = value;
+				OnPropertyChanged();
+			}
+		}
+
 		/// <summary>
 		/// 是否分享畫面
 		/// </summary>
@@ -65,7 +82,21 @@ namespace ChatUI
 			{
 				_ShareScreen = value;
 				//設定分享畫面服務 分享/不分享畫面
-				_server.Sharing = value;
+				if (_server != null)
+				{
+					_server.Sharing = value;
+				}
+
+				if (_ShareScreen)
+				{
+					InPut = "使用者開始分享畫面";
+					SendMessage();
+				}
+				else
+				{
+					InPut = "使用者停止分享畫面";
+					SendMessage();
+				}
 				OnPropertyChanged();
 			}
 		}
@@ -115,7 +146,7 @@ namespace ChatUI
 		/// <summary>
 		/// 所有以連線的使用者清單
 		/// </summary>
-		public ObservableCollection<string> AllUser
+		public ObservableCollection<UserInfo> AllUser
 		{
 			get
 			{
@@ -140,6 +171,18 @@ namespace ChatUI
 			set
 			{
 				_ConnectCount = value;
+				OnPropertyChanged();
+			}
+		}
+		public bool Notify
+		{
+			get
+			{
+				return _Notify;
+			}
+			set
+			{
+				_Notify = value;
 				OnPropertyChanged();
 			}
 		}
@@ -233,21 +276,6 @@ namespace ChatUI
 		/// 清除聊天紀錄
 		/// </summary>
 		public NoParameterCommand ClearTextCommand { get; set; }
-
-		/// <summary>
-		/// 主畫面顯示對話textbox物件實例(用在Scroll to end)
-		/// </summary>
-		public System.Windows.Controls.TextBox ChatTextBox
-		{
-			get
-			{
-				return _ChatTextBox;
-			}
-			set
-			{
-				_ChatTextBox = value;
-			}
-		}
 
 		/// <summary>
 		/// 與WebSocket Server狀態背景顏色
@@ -384,7 +412,7 @@ namespace ChatUI
 		/// <summary>
 		/// 目前選到的使用者
 		/// </summary>
-		public string SelectedListBoxItem { get; set; }
+		public UserInfo SelectedListBoxItem { get; set; }
 
 		/// <summary>
 		/// 目前與WebSocket Server連線狀態
@@ -513,7 +541,7 @@ namespace ChatUI
 			}
 			catch (Exception ex)
 			{
-				System.Windows.Forms.MessageBox.Show($"初始化發生例外 : {ex.Message}\r\n{ex.StackTrace}");
+				ShowMessage("通知", $"初始化設定發生例外 : {ex.Message}\r\n{ex.StackTrace}", NotificationType.Error);
 			}
 		}
 
@@ -531,7 +559,10 @@ namespace ChatUI
 				});
 				_ShareThread.Start();
 			}
-			catch { }
+			catch(Exception ex)
+			{
+				ShowMessage("通知", $"初始化分享畫面服務發生例外 : {ex.Message}\r\n{ex.StackTrace}", NotificationType.Error);
+			}
 		}
 
 		/// <summary>
@@ -562,17 +593,26 @@ namespace ChatUI
 		/// </summary>
 		private void WatchLiveCommandAction ()
 		{
-			Live live = new Live();
-			LiveViewModel viewModel = new LiveViewModel(SelectedListBoxItem);
-			if (viewModel.webSocketClient.IsAlive)
+			if(SelectedListBoxItem is null)
 			{
-				live.DataContext = viewModel;
-				live.Show();
+				return;
+			}
+
+			if(SelectedListBoxItem.IsLive == Visibility.Visible)
+			{
+				Live live = new Live();
+				LiveViewModel viewModel = new LiveViewModel(SelectedListBoxItem.UserIP);
+				if (viewModel.webSocketClient.IsAlive)
+				{
+					live.DataContext = viewModel;
+					live.Show();
+				}
 			}
 			else
 			{
-				ShowMessage("通知", $"目標主機沒有在監聽", NotificationType.Warning);
+				ShowMessage("通知", $"使用者沒有在分享畫面", NotificationType.Warning);
 			}
+			
 		}
 
 		/// <summary>
@@ -912,10 +952,43 @@ namespace ChatUI
 				var CurrentAddUserID = receiveData.Split(' ')[1];
 				App.Current.Dispatcher.Invoke((Action)delegate // <--- HERE
 				{
-					if (!AllUser.Contains(CurrentAddUserID.Split(':')[0]))
+					var userIP = CurrentAddUserID.Split(':')[0];
+					if (!AllUser.Any(x => x.UserIP == userIP))
 					{
-						AllUser.Add(CurrentAddUserID.Split(':')[0]);
+						AllUser.Add(new UserInfo()
+						{
+							UserIP = userIP,
+							IsLive = Visibility.Collapsed
+						});
 						ConnectCount++;
+					}
+				});
+				return;
+			}
+
+			if (receiveData.Contains("開始分享畫面"))
+			{
+				var CurrentLivingUserIP = receiveData.Split(' ')[2].Split('(')[1].Replace(")", "");
+				App.Current.Dispatcher.Invoke((Action)delegate // <--- HERE
+				{
+
+					if (AllUser.Any(x => x.UserIP == CurrentLivingUserIP))
+					{
+						AllUser.Where(x => x.UserIP == CurrentLivingUserIP).FirstOrDefault().IsLive = Visibility.Visible;
+					}
+				});
+				return;
+			}
+
+			if (receiveData.Contains("停止分享畫面"))
+			{
+				var CurrentLivingUserIP = receiveData.Split(' ')[2].Split('(')[1].Replace(")", "");
+				App.Current.Dispatcher.Invoke((Action)delegate // <--- HERE
+				{
+					
+					if (AllUser.Any(x => x.UserIP == CurrentLivingUserIP))
+					{
+						AllUser.Where(x => x.UserIP == CurrentLivingUserIP).FirstOrDefault().IsLive = Visibility.Collapsed;
 					}
 				});
 				return;
@@ -930,9 +1003,14 @@ namespace ChatUI
 				{
 					App.Current.Dispatcher.Invoke((Action)delegate // <--- HERE
 					{
-						if (!AllUser.Contains(allLloginMessage[1].Split(':')[0]))
+						var userIP = allLloginMessage[1].Split(':')[0];
+						if (!AllUser.Any(x => x.UserIP == userIP))
 						{
-							AllUser.Add(allLloginMessage[1].Split(':')[0]);
+							AllUser.Add(new UserInfo()
+							{
+								UserIP = userIP,
+								IsLive = Visibility.Collapsed
+							});
 							ConnectCount++;
 						}
 					});
@@ -947,9 +1025,10 @@ namespace ChatUI
 				{
 					App.Current.Dispatcher.Invoke((Action)delegate
 					{
-						if (!AllUser.Contains(allLloginMessage[1].Split(':')[0]))
+						var userIP = allLloginMessage[1].Split(':')[0];
+						if (AllUser.Any(x => x.UserIP == userIP))
 						{
-							AllUser.Remove(allLloginMessage[1].Split(':')[0]);
+							AllUser.Remove(AllUser.Where(x => x.UserIP == userIP).FirstOrDefault());
 							ConnectCount--;
 						}
 					});
@@ -957,16 +1036,12 @@ namespace ChatUI
 				}
 			}
 
-			ChatText += receiveData;
+			ChatText += receiveData.Replace("\n\n", "\n");
 
 			if (!receiveData.Contains(UserName))
 			{
 				ShowMessage("通知", receiveData, NotificationType.Success);
 			}
-			App.Current.Dispatcher.Invoke((Action)delegate
-			{
-				this.ChatTextBox.ScrollToEnd();
-			});
 		}
 
 		/// <summary>
@@ -1012,14 +1087,22 @@ namespace ChatUI
 		/// <param name="type"></param>
 		public void ShowMessage (string title, string message, NotificationType type)
 		{
-			var notificationManager = new NotificationManager();
-			var ts = TimeSpan.FromSeconds(ShowMessageTime/10);
-			notificationManager.Show(new NotificationContent
+			if (!Notify && (type == NotificationType.Success || type == NotificationType.Information))
 			{
-				Title = title,
-				Message = message,
-				Type = type,
-			}, "", ts, () => State = WindowState.Normal);
+				return;
+			}
+
+			var notificationManager = new NotificationManager();
+			if(ShowMessageTime != 0)
+			{
+				var ts = TimeSpan.FromSeconds(ShowMessageTime);
+				notificationManager.Show(new NotificationContent
+				{
+					Title = title,
+					Message = message,
+					Type = type,
+				}, "", ts, () => State = WindowState.Normal);
+			}
 		}
 		#endregion
 	}

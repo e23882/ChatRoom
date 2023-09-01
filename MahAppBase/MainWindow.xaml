@@ -12,8 +12,24 @@
         Height="800" Width="800" 
         WindowState="{Binding State}" 
         ShowInTaskbar="{Binding ShowInToolBar}"  
-        Visibility="{Binding MainWindowVisibly}" 
-        Topmost="True">
+        Visibility="{Binding MainWindowVisibly}">
+    <controls:MetroWindow.Style>
+        <Style TargetType="{x:Type controls:MetroWindow}">
+            <Setter Property="BorderThickness" Value="1.23"/>
+            <Setter Property="BorderBrush" Value="#0066FF" />
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Trigger.EnterActions>
+                        <BeginStoryboard HandoffBehavior="SnapshotAndReplace">
+                            <Storyboard>
+                                <ColorAnimation Duration="0:0:3" From="#00DB00" To="#FF0000" Storyboard.TargetProperty="BorderBrush.Color" AutoReverse="True" />
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </Trigger.EnterActions>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </controls:MetroWindow.Style>
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="Closed">
             <i:InvokeCommandAction Command="{Binding MainWindowClosed}"/>
@@ -30,7 +46,7 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
-            <RowDefinition Height="30"/>
+            <RowDefinition Height="25"/>
         </Grid.RowDefinitions>
         <controls:MetroAnimatedTabControl Grid.Row="0">
             <controls:MetroTabItem Header="ChatRoom">
@@ -45,18 +61,37 @@
                     </Grid.ColumnDefinitions>
                     <TextBox Grid.Row="0" Grid.Column="0" x:Name="tbChat"  TextWrapping="Wrap" IsReadOnly="True" 
                              AcceptsReturn="True" Text="{Binding ChatText}" 
-                             VerticalScrollBarVisibility="Auto" Background="LightGray"/>
+                             VerticalScrollBarVisibility="Auto" Background="#1F1F1F" TextChanged="tbChat_TextChanged"
+                             BorderBrush="#333333" BorderThickness="1"/>
 
-                    <GridSplitter Grid.Row="0" Background="Black" VerticalAlignment="Stretch"  Width="1.5"/>
+                    <GridSplitter Grid.Row="0" Background="#333333" VerticalAlignment="Stretch"  Width="3"/>
                     <ListBox Grid.Row="0" Grid.Column="1" MinWidth="130" ItemsSource="{Binding AllUser}" SelectedValue="{Binding SelectedListBoxItem}">
-                        <i:Interaction.Triggers>
-                            <i:EventTrigger EventName="MouseDoubleClick">
-                                <i:InvokeCommandAction Command="{Binding WatchLiveCommand}"/>
-                            </i:EventTrigger>
-                        </i:Interaction.Triggers>
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="auto" />
+                                        <ColumnDefinition Width="5" />
+                                        <ColumnDefinition Width="auto" />
+                                        <ColumnDefinition Width="10" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <ListBoxItem Grid.Column="0" Content="{Binding UserIP}" Background="Transparent">
+                                        <i:Interaction.Triggers>
+                                            <i:EventTrigger EventName="MouseDoubleClick">
+                                                <i:InvokeCommandAction Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type controls:MetroWindow}}, Path=DataContext.WatchLiveCommand}" CommandParameter="{Binding FileName}"/>
+                                            </i:EventTrigger>
+                                        </i:Interaction.Triggers>
+                                    </ListBoxItem>
+                                    
+                                    <TextBlock Grid.Column="2" Text="Live" FontWeight="Bold" Background="Transparent" Foreground="Red" Visibility="{Binding IsLive}"/>
+                                </Grid>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                      
                     </ListBox>
 
-                    <GridSplitter Grid.Row="0" Grid.ColumnSpan="2" Background="LightGray" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Height="3"/>
+                    <GridSplitter Grid.Row="0" Grid.ColumnSpan="2" Background="#333333" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Height="3"/>
                     <Grid Grid.Row="1"  Grid.Column="0"  Grid.ColumnSpan="2">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="auto"/>
@@ -67,8 +102,8 @@
                             <ColumnDefinition Width="auto"/>
                         </Grid.ColumnDefinitions>
                         <StackPanel Grid.Row="0" Orientation="Horizontal">
-                            <TextBlock Text="使用者名稱" Background="White" VerticalAlignment="Center" Margin="5,0,0,0"/>
-                            <TextBox Text="{Binding UserName}" Width="120" Margin="10,0,0,0" BorderBrush="Transparent" VerticalAlignment="Center"/>
+                            <TextBlock Text="使用者名稱" VerticalAlignment="Center" Margin="5,0,0,0"/>
+                            <TextBox Text="{Binding UserName}" Width="120" Margin="10,0,0,0" BorderBrush="Transparent" VerticalAlignment="Center" Padding="0,1,0,0"/>
                             <TextBlock Text="　  " x:Name="tbStatus" VerticalAlignment="Center" Margin="5,0,0,0" Background="{Binding StatusBackGroundColor}"/>
                             <TextBlock Text="{Binding ConnectStatus}" Width="150" Margin="3,0,0,0" VerticalAlignment="Center"/>
                             <TextBlock Text="訊息顯示時間" VerticalAlignment="Center" Margin="30,0,0,0"/>
@@ -77,12 +112,11 @@
                             <iconPacks:PackIconModern Width="26"  Kind="People" VerticalAlignment="Center" Margin="50,0,0,0"/>
                             <TextBlock Text="{Binding ConnectCount}" VerticalAlignment="Center" FontSize="18"/>
                         </StackPanel>
-                        <TextBox TextWrapping="Wrap" AcceptsReturn="True" Grid.Row="1" Grid.Column="0" KeyUp="TextBox_KeyUp" TextChanged="TextBox_TextChanged" Text="{Binding InPut, UpdateSourceTrigger=PropertyChanged}"/>
-                        <StackPanel Grid.Row="1"  Grid.Column="1" Orientation="Horizontal">
-                            <Button Content="傳送檔案" Padding="10,0" Grid.Row="1"  Grid.Column="1" FontSize="15" Command="{Binding SendDataCommand}"/>
-                            <Button Content="SEND" Padding="10,0" Grid.Row="1"  Grid.Column="1" FontSize="15" Command="{Binding SendMessageCommand}"/>
+                        <TextBox TextWrapping="Wrap" AcceptsReturn="True" Grid.Row="1" Grid.Column="0" Height="40" BorderBrush="#333333" BorderThickness="1" KeyUp="TextBox_KeyUp" TextChanged="TextBox_TextChanged" Text="{Binding InPut, UpdateSourceTrigger=PropertyChanged}"/>
+                        <StackPanel Grid.Row="1"  Grid.Column="1" Orientation="Horizontal" >
+                            <Button Content="傳送檔案" Padding="10,2" Grid.Row="1"  Grid.Column="1" FontSize="15" Command="{Binding SendDataCommand}" BorderBrush="#333333"/>
+                            <Button Content="SEND" Padding="10,0" Grid.Row="1"  Grid.Column="1" FontSize="15" Command="{Binding SendMessageCommand}" BorderBrush="#333333"/>
                         </StackPanel>
-                            
                     </Grid>
                 </Grid>
             </controls:MetroTabItem>
@@ -106,7 +140,7 @@
     </Grid>
     <controls:MetroWindow.Flyouts>
         <controls:FlyoutsControl>
-            <controls:Flyout x:Name="flySetting" IsOpen="{Binding FlyOutSettingIsOpen}" Header="Setting" Theme="Light" Position="Left" >
+            <controls:Flyout x:Name="flySetting" IsOpen="{Binding FlyOutSettingIsOpen}" Header="Setting" Theme="Dark" Position="Left" >
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="auto"/>
@@ -115,13 +149,26 @@
                     </Grid.RowDefinitions>
                     <StackPanel Orientation="Vertical">
                         <StackPanel Orientation="Horizontal" Margin="10,0,0,0">
-                            <Button Content="清除所有對話" Margin="5" Padding="10,5" FontSize="15" Command="{Binding ClearTextCommand}"/>
-                            <Button Content="更新最新版本" Margin="5" Padding="10,5" FontSize="15" Command="{Binding UpgradeCommand}"/>
-                        </StackPanel>
+                            <controls:Badged Padding="0" Margin="3,0" Height="33" BorderBrush="Transparent" >
+                                <Button Content="清除所有對話" Padding="10,0" FontSize="15" controls:ButtonHelper.CornerRadius="0" BorderThickness="1" Command="{Binding ClearTextCommand}"/>
+                            </controls:Badged>
+                            <controls:Badged Badge="{Binding UpdateBadgeText}" Padding="0" Margin="3,0" Height="33" BorderBrush="Transparent">
+                                <Button Content="更新最新版本" Padding="10,0" FontSize="15" controls:ButtonHelper.CornerRadius="0" BorderThickness="1" Command="{Binding UpgradeCommand}"/>
+                            </controls:Badged>
                             
-                        <StackPanel Orientation="Horizontal">
+                        </StackPanel>
+                        
+                        <StackPanel Orientation="Horizontal" Margin="0,20,0,0">
                             <TextBlock Text="分享畫面" VerticalAlignment="Center" Margin="15,0,0,0"/>
-                            <controls:ToggleSwitchButton Height="30" IsChecked="{Binding ShareScreen}" ToolTip="儲存設定(功能啟用、視窗配置)"/>
+                            <controls:ToggleSwitchButton Height="28" IsChecked="{Binding ShareScreen}" ToolTip="儲存設定(功能啟用、視窗配置)" Margin="10,0,0,0"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,20,0,0">
+                            <TextBlock Text="啟用通知" VerticalAlignment="Center" Margin="15,0,0,0"/>
+                            <controls:ToggleSwitchButton Height="28" IsChecked="{Binding Notify}" ToolTip="儲存設定(功能啟用、視窗配置)" Margin="10,0,0,0"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,20,0,0">
+                            <TextBlock Text="視窗顯示在最上層" VerticalAlignment="Center" Margin="15,0,0,0"/>
+                            <controls:ToggleSwitchButton Height="28" IsChecked="{Binding IsTopMost}" ToolTip="儲存設定(功能啟用、視窗配置)" Margin="10,0,0,0"/>
                         </StackPanel>
                     </StackPanel>
                     <DataGrid Grid.Row="1" ItemsSource="{Binding FileList}" AutoGenerateColumns="False" SelectedItem="{Binding SelectedFile}" CanUserAddRows="False" Margin="0,10,0,0">

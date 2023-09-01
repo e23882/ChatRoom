@@ -5,7 +5,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{E98EF724-AD6A-43EE-A3EB-4BE839E7189E}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <OutputType>WinExe</OutputType>
     <RootNamespace>ChatUI</RootNamespace>
     <AssemblyName>ChatUI</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
@@ -108,6 +108,7 @@
       <DependentUpon>Live.xaml</DependentUpon>
     </Compile>
     <Compile Include="Model\FtpFile.cs" />
+    <Compile Include="Model\UserInfo.cs" />
     <Compile Include="Model\UserSetting.cs" />
     <Compile Include="Service\Connect.cs" />
     <Compile Include="Service\ShareService.cs" />
