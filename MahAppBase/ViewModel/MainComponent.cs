@@ -312,7 +312,7 @@ namespace ChatUI
 		/// <summary>
 		/// 看其他人Live Click Command
 		/// </summary>
-		public NoParameterCommand WatchLiveCommand { get; set; }
+		public RelayCommand WatchLiveCommand { get; set; }
 
 		/// <summary>
 		/// 送資料Command
@@ -408,11 +408,6 @@ namespace ChatUI
 				OnPropertyChanged();
 			}
 		}
-
-		/// <summary>
-		/// 目前選到的使用者
-		/// </summary>
-		public UserInfo SelectedListBoxItem { get; set; }
 
 		/// <summary>
 		/// 目前與WebSocket Server連線狀態
@@ -580,7 +575,7 @@ namespace ChatUI
 				DownloadFileCommand = new NoParameterCommand(DownloadFileCommandAction);
 				DeleteFileCommand = new NoParameterCommand(DeleteFileCommandAction);
 				UpgradeCommand = new NoParameterCommand(UpgradeCommandAction);
-				WatchLiveCommand = new NoParameterCommand(WatchLiveCommandAction);
+				WatchLiveCommand = new RelayCommand(WatchLiveCommandAction);
 			}
 			catch (Exception ex)
 			{
@@ -591,28 +586,23 @@ namespace ChatUI
 		/// <summary>
 		/// 觀看分享畫面
 		/// </summary>
-		private void WatchLiveCommandAction ()
+		private void WatchLiveCommandAction (object parameter)
 		{
-			if(SelectedListBoxItem is null)
-			{
-				return;
-			}
-
-			if(SelectedListBoxItem.IsLive == Visibility.Visible)
+			try
 			{
 				Live live = new Live();
-				LiveViewModel viewModel = new LiveViewModel(SelectedListBoxItem.UserIP);
+				LiveViewModel viewModel = new LiveViewModel(parameter.ToString());
 				if (viewModel.webSocketClient.IsAlive)
 				{
 					live.DataContext = viewModel;
 					live.Show();
 				}
 			}
-			else
+			catch(Exception ex) 
 			{
 				ShowMessage("通知", $"使用者沒有在分享畫面", NotificationType.Warning);
+
 			}
-			
 		}
 
 		/// <summary>
@@ -777,29 +767,36 @@ namespace ChatUI
 		/// </summary>
 		private void GetFTPFileList ()
 		{
-			FileList.Clear();
-			string ftpServer = "ftp://10.93.9.117";
-			FtpWebRequest request = (FtpWebRequest)WebRequest.Create(new Uri(ftpServer));
-			request.Method = WebRequestMethods.Ftp.ListDirectory;
-			request.Credentials = new NetworkCredential("anonymous", "anonymous@example.com");
-			using (FtpWebResponse response = (FtpWebResponse)request.GetResponse())
+			try
 			{
-				using (Stream responseStream = response.GetResponseStream())
+				FileList.Clear();
+				string ftpServer = "ftp://10.93.9.117";
+				FtpWebRequest request = (FtpWebRequest)WebRequest.Create(new Uri(ftpServer));
+				request.Method = WebRequestMethods.Ftp.ListDirectory;
+				request.Credentials = new NetworkCredential("anonymous", "anonymous@example.com");
+				using (FtpWebResponse response = (FtpWebResponse)request.GetResponse())
 				{
-					using (StreamReader reader = new StreamReader(responseStream))
+					using (Stream responseStream = response.GetResponseStream())
 					{
-						string fileContent = reader.ReadToEnd();
-						var allFile = fileContent.Split(new string[] { "\r\n" }, StringSplitOptions.None);
-						foreach (var item in allFile)
+						using (StreamReader reader = new StreamReader(responseStream))
 						{
-							if (item.Length < 3)
-								continue;
-							if (string.IsNullOrEmpty(item))
-								continue;
-							FileList.Add(new FtpFile() { FileName = item });
+							string fileContent = reader.ReadToEnd();
+							var allFile = fileContent.Split(new string[] { "\r\n" }, StringSplitOptions.None);
+							foreach (var item in allFile)
+							{
+								if (item.Length < 3)
+									continue;
+								if (string.IsNullOrEmpty(item))
+									continue;
+								FileList.Add(new FtpFile() { FileName = item });
+							}
 						}
 					}
 				}
+			}
+			catch (Exception ex)
+			{
+				ShowMessage("通知", $"取得FTP檔案清單時發生例外 : {ex.Message}\r\n{ex.StackTrace}", NotificationType.Error);
 			}
 		}
 

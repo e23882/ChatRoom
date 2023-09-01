@@ -1,5 +1,4 @@
-﻿
-using System.Windows;
+﻿using System.Windows;
 
 namespace ChatUI
 {
@@ -11,33 +10,30 @@ namespace ChatUI
 		#endregion
 
 		#region Property
-		#endregion
-
-		#region Memberfunction
-		#endregion
 		public string UserIP
 		{
 			get
 			{
 				return _UserIP;
 			}
-			set 
+			set
 			{
 				_UserIP = value;
 				OnPropertyChanged();
 			}
 		}
-		public Visibility IsLive 
+		public Visibility IsLive
 		{
-			get 
+			get
 			{
 				return _IsLive;
 			}
-			set 
+			set
 			{
 				_IsLive = value;
 				OnPropertyChanged();
 			}
 		}
+		#endregion
 	}
 }

@@ -6,7 +6,6 @@
         mc:Ignorable="d"
         Title="Live" Height="450" Width="800">
     <Grid>
-        
         <Image Source="{Binding Source}" />
         <TextBlock Text="Live。" Background="Transparent" Foreground="Red" FontWeight="Bold" Margin="20,20,0,0" FontSize="35"/>
     </Grid>

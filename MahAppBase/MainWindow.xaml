@@ -63,9 +63,8 @@
                              AcceptsReturn="True" Text="{Binding ChatText}" 
                              VerticalScrollBarVisibility="Auto" Background="#1F1F1F" TextChanged="tbChat_TextChanged"
                              BorderBrush="#333333" BorderThickness="1"/>
-
                     <GridSplitter Grid.Row="0" Background="#333333" VerticalAlignment="Stretch"  Width="3"/>
-                    <ListBox Grid.Row="0" Grid.Column="1" MinWidth="130" ItemsSource="{Binding AllUser}" SelectedValue="{Binding SelectedListBoxItem}">
+                    <ListBox Grid.Row="0" Grid.Column="1" MinWidth="130" ItemsSource="{Binding AllUser}">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
                                 <Grid>
@@ -73,18 +72,13 @@
                                         <ColumnDefinition Width="auto" />
                                         <ColumnDefinition Width="5" />
                                         <ColumnDefinition Width="auto" />
-                                        <ColumnDefinition Width="10" />
+                                        <ColumnDefinition Width="15" />
+                                        <ColumnDefinition Width="auto" />
                                     </Grid.ColumnDefinitions>
 
-                                    <ListBoxItem Grid.Column="0" Content="{Binding UserIP}" Background="Transparent">
-                                        <i:Interaction.Triggers>
-                                            <i:EventTrigger EventName="MouseDoubleClick">
-                                                <i:InvokeCommandAction Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type controls:MetroWindow}}, Path=DataContext.WatchLiveCommand}" CommandParameter="{Binding FileName}"/>
-                                            </i:EventTrigger>
-                                        </i:Interaction.Triggers>
-                                    </ListBoxItem>
-                                    
+                                    <ListBoxItem Grid.Column="0" Content="{Binding UserIP}" Background="Transparent"/>
                                     <TextBlock Grid.Column="2" Text="Live" FontWeight="Bold" Background="Transparent" Foreground="Red" Visibility="{Binding IsLive}"/>
+                                    <Button Grid.Column="4" Content="加入" BorderBrush="Transparent" Visibility="{Binding IsLive}" Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type controls:MetroWindow}}, Path=DataContext.WatchLiveCommand}" CommandParameter="{Binding UserIP}"/>
                                 </Grid>
                             </DataTemplate>
                         </ListBox.ItemTemplate>
