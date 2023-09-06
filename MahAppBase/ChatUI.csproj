@@ -104,6 +104,9 @@
     </ApplicationDefinition>
     <Compile Include="Command\NoParameterCommand.cs" />
     <Compile Include="Command\RelayCommand.cs" />
+    <Compile Include="CustomerUserControl\Barrage.xaml.cs">
+      <DependentUpon>Barrage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="CustomerUserControl\Live.xaml.cs">
       <DependentUpon>Live.xaml</DependentUpon>
     </Compile>
@@ -116,6 +119,10 @@
     <Compile Include="ViewModel\MainComponent.cs" />
     <Compile Include="ViewModel\Status.cs" />
     <Compile Include="ViewModel\ViewModelBase.cs" />
+    <Page Include="CustomerUserControl\Barrage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="CustomerUserControl\Live.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

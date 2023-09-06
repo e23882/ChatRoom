@@ -19,12 +19,23 @@ namespace Update
 		/// <param name="args"></param>
 		static void Main (string[] args)
 		{
-			//取得要更新的檔案清單
-			GetFileList();
-			bool downloadSuccess = Download();
-			if (downloadSuccess)
+			int retryTimes  = 3;
+			while (retryTimes > 0)
 			{
-				StartChatUI();
+				try
+				{
+					//取得要更新的檔案清單
+					GetFileList();
+					bool downloadSuccess = Download();
+					if (downloadSuccess)
+					{
+						StartChatUI();
+					}
+				}
+				catch(Exception ex) 
+				{
+					retryTimes--;
+				}
 			}
 		}
 		

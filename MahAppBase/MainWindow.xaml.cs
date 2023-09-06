@@ -5,6 +5,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows;
 using System.Windows.Input;
+using ChatUI.CustomerUserControl;
 using MahApps.Metro.Controls;
 using MahApps.Metro.Controls.Dialogs;
 
@@ -17,6 +18,14 @@ namespace ChatUI
 	{
 		#region Declarations
 		MainComponent viewModel = null;
+		const uint ATTACH_PARENT_PROCESS = 0x0ffffffff;
+		private bool closeMe;
+		bool isFirstTime = true;
+
+		bool isChoosingWord = false;
+		string PreviousText = "";
+		int wordLength = 0;
+
 		#endregion
 
 		#region Memberfunction
@@ -30,11 +39,12 @@ namespace ChatUI
 			viewModel.Window = window;
 			this.DataContext = viewModel;
 			
+			Barrage win = new Barrage();
+			win.Show();
+			
 		}
 
 
-		bool isChoosingWord = false;
-		string PreviousText = "";
 		/// <summary>
 		/// 輸入訊息元件按下上事件
 		/// </summary>
@@ -62,22 +72,20 @@ namespace ChatUI
 			PreviousText = "";
 
 		}
-		#endregion
-		int wordLength = 0;
+
 		[DllImport("kernel32.dll")]
 		static extern bool AttachConsole (uint dwProcessId);
 
-		const uint ATTACH_PARENT_PROCESS = 0x0ffffffff;
 		private void TextBox_TextChanged (object sender, System.Windows.Controls.TextChangedEventArgs e)
 		{
-			
+
 			AttachConsole(ATTACH_PARENT_PROCESS);
 			Console.WriteLine($"textChange");
 
 			Console.WriteLine($"Original : {wordLength}");
 			Console.WriteLine($"Current : {(sender as System.Windows.Controls.TextBox).Text.Length}");
 			//選字
-			if(wordLength == (sender as System.Windows.Controls.TextBox).Text.Length)
+			if (wordLength == (sender as System.Windows.Controls.TextBox).Text.Length)
 			{
 				isChoosingWord = true;
 			}
@@ -92,7 +100,6 @@ namespace ChatUI
 		{
 			tbChat.ScrollToEnd();
 		}
-		private bool closeMe;
 		private async void window_Closing (object sender, CancelEventArgs e)
 		{
 			if (e.Cancel)
@@ -127,7 +134,6 @@ namespace ChatUI
 				viewModel.State = WindowState.Minimized;
 			}
 		}
-		bool isFirstTime = true;
 		private void window_GotFocus (object sender, RoutedEventArgs e)
 		{
 			if (isFirstTime)
@@ -156,5 +162,6 @@ namespace ChatUI
 				th.Start();
 			}
 		}
+		#endregion
 	}
 }
