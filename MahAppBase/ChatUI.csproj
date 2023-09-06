@@ -203,5 +203,11 @@
       <Install>false</Install>
     </BootstrapperPackage>
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Image\bug.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\bug.ico" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

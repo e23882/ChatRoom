@@ -5,7 +5,6 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows;
 using System.Windows.Input;
-using ChatUI.CustomerUserControl;
 using MahApps.Metro.Controls;
 using MahApps.Metro.Controls.Dialogs;
 
@@ -39,7 +38,7 @@ namespace ChatUI
 			viewModel.Window = window;
 			this.DataContext = viewModel;
 			
-			Barrage win = new Barrage();
+			Barrage1 win = new Barrage1();
 			win.Show();
 			
 		}

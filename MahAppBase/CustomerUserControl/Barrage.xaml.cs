@@ -1,21 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Animation;
+using System.Windows.Media.Imaging;
 using WebSocketSharp;
 
-namespace ChatUI.CustomerUserControl
+namespace ChatUI
 {
 	/// <summary>
 	/// Barrage.xaml 的互動邏輯
 	/// </summary>
-	public partial class Barrage: Window
+	public partial class Barrage1: Window
 	{
         public WebSocket WebSocketClient { get; set; }
 
-        public Barrage ()
+        public Barrage1 ()
 		{
 			InitializeComponent();
 			this.Deactivated += MainWindow_Deactivated;
@@ -26,7 +30,6 @@ namespace ChatUI.CustomerUserControl
             WebSocketClient.Connect();
         }
 
-        [STAThread]
 		private void Ws_OnMessage (object sender, MessageEventArgs e)
 		{
 			try
@@ -39,8 +42,11 @@ namespace ChatUI.CustomerUserControl
 				}
 
 				string receiveData = e.Data;
-
-				if (receiveData.Contains("@All") 
+                if (receiveData.Contains("Bug") || receiveData.Contains("bug") || receiveData.Contains("BUG"))
+                {
+                    BarrageImage();
+                }
+                if (receiveData.Contains("@All") 
                     || receiveData.Contains("@ALL")
                     || receiveData.Contains("@all"))
 				{
@@ -49,7 +55,7 @@ namespace ChatUI.CustomerUserControl
                     string message = "";
                     for (int i = 5;i < allData.Length; i++)
                     {
-                        message += allData[i];
+                        message += $" {allData[i]}";
                     }
                     list.Add(allData[2] + " " + message);
                     BarrageMessage(list);
@@ -60,7 +66,56 @@ namespace ChatUI.CustomerUserControl
 			}
 		}
 
-		void MainWindow_StateChanged (object sender, EventArgs e)
+		private void BarrageImage ()
+		{
+            Random random = new Random();
+
+            //获取位置随机数
+            double randomtop = random.NextDouble();
+            double inittop = canvas.ActualHeight * randomtop;
+            //获取速度随机数
+            double randomspeed = random.NextDouble();
+            double initspeed = 10 * randomspeed;
+
+            var data = Properties.Resources.bug1;
+            BitmapImage bitmapImage;
+            using (var memory = new MemoryStream())
+            {
+                data.Save(memory, ImageFormat.Png);
+                memory.Position = 0;
+
+                bitmapImage = new BitmapImage();
+                bitmapImage.BeginInit();
+                bitmapImage.StreamSource = memory;
+                bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
+                bitmapImage.EndInit();
+                bitmapImage.Freeze();
+
+            }
+            //实例化动画
+            Application.Current.Dispatcher.Invoke(() => {
+				//实例化TextBlock和设置基本属性,并添加到Canvas中
+				System.Windows.Controls.Image img = new System.Windows.Controls.Image();
+                img.Source = bitmapImage;
+                Canvas.SetTop(img, inittop);
+                canvas.Children.Add(img);
+                DoubleAnimation animation = new DoubleAnimation();
+                Timeline.SetDesiredFrameRate(animation, 60);  //如果有性能问题,这里可以设置帧数
+                animation.From = 0;
+                animation.To = canvas.ActualWidth;
+                animation.Duration = TimeSpan.FromSeconds(10);
+                animation.Completed += (object sender, EventArgs e) =>
+                {
+                    canvas.Children.Remove(img);
+                };
+                //启动动画
+                img.BeginAnimation(Canvas.LeftProperty, animation);
+            });
+        }
+
+       
+
+        void MainWindow_StateChanged (object sender, EventArgs e)
 		{
 			this.WindowState = WindowState.Maximized;
 		}
@@ -107,9 +162,6 @@ namespace ChatUI.CustomerUserControl
                 });
                 
             }
-          
-            
-
         }
     }
 }

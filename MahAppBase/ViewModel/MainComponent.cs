@@ -1202,6 +1202,7 @@ namespace ChatUI
 			}
 		}
 
+		int sendAllCount = 0;
 		/// <summary>
 		/// 傳送訊息
 		/// </summary>
@@ -1233,9 +1234,26 @@ namespace ChatUI
 						cs.FlushFinalBlock();
 						result = Convert.ToBase64String(ms.ToArray());
 					}
-					WebSocketClient.Send(result);
-					PreviousInput = InPut;
-					InPut = "";
+					if(InPut.Contains("ALL") || InPut.Contains("All") || InPut.Contains("all"))
+					{
+						sendAllCount++;
+					}
+					else
+					{
+						sendAllCount = 0;
+					}
+					if(sendAllCount > 2)
+					{
+						ShowMessage("傳太多次彈幕了，不讓你傳", $"不讓你傳", NotificationType.Error);
+						sendAllCount = 0;
+					}
+					else
+					{
+						WebSocketClient.Send(result);
+						PreviousInput = InPut;
+						InPut = "";
+					}
+					
 				}
 			}
 			catch (Exception ex)
