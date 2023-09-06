@@ -28,7 +28,6 @@ namespace Server
 			{
 				item.Send($"使用者 {this.Context.UserEndPoint} 加入聊天\n");
 			}
-
 			var current = ClientList.Where(x => x.Context.UserEndPoint == this.Context.UserEndPoint).FirstOrDefault();
 			foreach (var item in ClientList)
 			{

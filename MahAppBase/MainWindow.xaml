@@ -8,11 +8,18 @@
         xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
         xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
         mc:Ignorable="d"
-        Title="" 
         Height="800" Width="800" 
         WindowState="{Binding State}" 
         ShowInTaskbar="{Binding ShowInToolBar}"  
-        Visibility="{Binding MainWindowVisibly}">
+        Visibility="{Binding MainWindowVisibly}"
+        x:Name="window" Closing="window_Closing" GotFocus="window_GotFocus" >
+    <controls:MetroWindow.LeftWindowCommands>
+        <controls:WindowCommands>
+            <TextBlock Text="Esc : Minimize the application" VerticalAlignment="Center" Foreground="LightGray" Margin="10,0,5,0"/>
+            <TextBlock Text="F1 : Special function" VerticalAlignment="Center" Foreground="LightGray" Margin="10,0,5,0"/>
+
+        </controls:WindowCommands>
+    </controls:MetroWindow.LeftWindowCommands>
     <controls:MetroWindow.Style>
         <Style TargetType="{x:Type controls:MetroWindow}">
             <Setter Property="BorderThickness" Value="1.23"/>
@@ -30,15 +37,12 @@
             </Style.Triggers>
         </Style>
     </controls:MetroWindow.Style>
-    <i:Interaction.Triggers>
-        <i:EventTrigger EventName="Closed">
-            <i:InvokeCommandAction Command="{Binding MainWindowClosed}"/>
-        </i:EventTrigger>
-    </i:Interaction.Triggers>
+
     <Window.Resources>
         <local:Status x:Key="Status"/>
     </Window.Resources>
-    <controls:MetroWindow.InputBindings>
+    
+<controls:MetroWindow.InputBindings>
         <KeyBinding Gesture="Enter" Command="{Binding SendCommand}"/>
         <KeyBinding Gesture="Esc" Command="{Binding CloseCommand}"/>
         <KeyBinding Gesture="F1" Command="{Binding ShowSettingCommand}"/>

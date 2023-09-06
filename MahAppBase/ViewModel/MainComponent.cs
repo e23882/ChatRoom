@@ -15,6 +15,8 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Linq;
+using System.Windows.Interop;
+using System.Runtime.InteropServices;
 
 namespace ChatUI
 {
@@ -81,22 +83,36 @@ namespace ChatUI
 			set
 			{
 				_ShareScreen = value;
-				//設定分享畫面服務 分享/不分享畫面
-				if (_server != null)
+				try
 				{
-					_server.Sharing = value;
+					//設定分享畫面服務 分享/不分享畫面
+					if (_server != null)
+					{
+						_server.Sharing = value;
+					}
+
+					if (_ShareScreen)
+					{
+						InitShareService();
+						InPut = "使用者開始分享畫面";
+						SendMessage();
+					}
+					else
+					{
+						if (_server != null)
+						{
+							_server.Sharing = false;
+							_server.SocketServer.Stop();
+						}
+						InPut = "使用者停止分享畫面";
+						SendMessage();
+					}
+				}
+				catch (Exception ex)
+				{
+					ShowMessage("設定是否分享畫面時發生例外", $"{ex.Message}\r\n{ex.StackTrace}", NotificationType.Error);
 				}
 
-				if (_ShareScreen)
-				{
-					InPut = "使用者開始分享畫面";
-					SendMessage();
-				}
-				else
-				{
-					InPut = "使用者停止分享畫面";
-					SendMessage();
-				}
 				OnPropertyChanged();
 			}
 		}
@@ -382,22 +398,23 @@ namespace ChatUI
 					switch (_State)
 					{
 						case WindowState.Minimized:
-						nIcon.Visible = true;
-						ShowInToolBar = false;
-						MainWindowVisibly = Visibility.Hidden;
+						//nIcon.Visible = true;
+						ShowInToolBar = true;
+						//MainWindowVisibly = Visibility.Hidden;
 						return _State;
 						case WindowState.Normal:
-						nIcon.Visible = false;
+						//nIcon.Visible = false;
 						ShowInToolBar = true;
-						MainWindowVisibly = Visibility.Visible;
+						//MainWindowVisibly = Visibility.Visible;
 						return _State;
 					}
 				}
-				catch
+				catch (Exception ex)
 				{
-					nIcon.Visible = false;
+					//nIcon.Visible = false;
 					ShowInToolBar = true;
 					MainWindowVisibly = Visibility.Visible;
+					ShowMessage("設定主視窗時發生例外", $"{ex.Message}\r\n{ex.StackTrace}", NotificationType.Error);
 					return _State;
 				}
 				return _State;
@@ -424,6 +441,8 @@ namespace ChatUI
 				OnPropertyChanged();
 			}
 		}
+
+		public object Window { get; internal set; }
 		#endregion
 
 		#region MemberFunction
@@ -432,7 +451,14 @@ namespace ChatUI
 		/// </summary>
 		public void PressUpButtonCommandAction ()
 		{
-			InPut = PreviousInput.Replace("\r", "").Replace("\n", "");
+			try
+			{
+				InPut = PreviousInput.Replace("\r", "").Replace("\n", "");
+			}
+			catch (Exception ex)
+			{
+				ShowMessage("按下上時發生例外", $"{ex.Message}\r\n{ex.StackTrace}", NotificationType.Error);
+			}
 		}
 
 		/// <summary>
@@ -472,26 +498,34 @@ namespace ChatUI
 		/// <param name="e"></param>
 		private void Mi_Click (object sender, EventArgs e)
 		{
-			if ((sender as MenuItem) is null)
-				return;
-
-			switch ((sender as MenuItem).Text)
+			try
 			{
-				case "放大":
-				State = WindowState.Normal;
-				break;
-				case "關閉":
-				UserSetting currentSetting = new UserSetting();
-				currentSetting.UserName = UserName;
-				currentSetting.ShowTime = ShowMessageTime;
-				string currentSettingString = JsonConvert.SerializeObject(currentSetting, Formatting.Indented);
-				if (File.Exists("UserSetting.ini"))
-					File.Delete("UserSetting.ini");
-				File.WriteAllText("UserSetting.ini", currentSettingString);
-				KillAllProcess();
-				Environment.Exit(0);
-				break;
+				if ((sender as MenuItem) is null)
+					return;
+
+				switch ((sender as MenuItem).Text)
+				{
+					case "放大":
+					State = WindowState.Normal;
+					break;
+					case "關閉":
+					UserSetting currentSetting = new UserSetting();
+					currentSetting.UserName = UserName;
+					currentSetting.ShowTime = ShowMessageTime;
+					string currentSettingString = JsonConvert.SerializeObject(currentSetting, Formatting.Indented);
+					if (File.Exists("UserSetting.ini"))
+						File.Delete("UserSetting.ini");
+					File.WriteAllText("UserSetting.ini", currentSettingString);
+					KillAllProcess();
+					Environment.Exit(0);
+					break;
+				}
 			}
+			catch (Exception ex)
+			{
+				ShowMessage("設定工具列選單時發生例外", $"{ex.Message}\r\n{ex.StackTrace}", NotificationType.Error);
+			}
+
 		}
 
 		/// <summary>
@@ -501,7 +535,14 @@ namespace ChatUI
 		/// <param name="e"></param>
 		private void NIcon_MouseDoubleClick (object sender, MouseEventArgs e)
 		{
-			State = WindowState.Normal;
+			try
+			{
+				State = WindowState.Normal;
+			}
+			catch (Exception ex)
+			{
+				ShowMessage("工具列ICON Click時發生例外", $"{ex.Message}\r\n{ex.StackTrace}", NotificationType.Error);
+			}
 		}
 
 		/// <summary>
@@ -524,15 +565,15 @@ namespace ChatUI
 				InitCommand();
 				ShowMessage("通知", $"初始化命令完成", NotificationType.Success);
 
-				InitIcon();
-				ShowMessage("通知", $"初始化ICON完成", NotificationType.Success);
+				//InitIcon();
+				//ShowMessage("通知", $"初始化ICON完成", NotificationType.Success);
 
 				InitConnection();
 				ShowMessage("通知", $"初始化連線完成", NotificationType.Success);
 
 				ReadSetting();
 				ShowMessage("通知", $"初始化設定", NotificationType.Success);
-				InitShareService();
+
 			}
 			catch (Exception ex)
 			{
@@ -554,7 +595,7 @@ namespace ChatUI
 				});
 				_ShareThread.Start();
 			}
-			catch(Exception ex)
+			catch (Exception ex)
 			{
 				ShowMessage("通知", $"初始化分享畫面服務發生例外 : {ex.Message}\r\n{ex.StackTrace}", NotificationType.Error);
 			}
@@ -598,10 +639,9 @@ namespace ChatUI
 					live.Show();
 				}
 			}
-			catch(Exception ex) 
+			catch (Exception ex)
 			{
 				ShowMessage("通知", $"使用者沒有在分享畫面", NotificationType.Warning);
-
 			}
 		}
 
@@ -610,18 +650,26 @@ namespace ChatUI
 		/// </summary>
 		private void UpgradeCommandAction ()
 		{
-			//將目前設定儲存在UserSetting.ini中
-			UserSetting currentSetting = new UserSetting();
-			currentSetting.UserName = UserName;
-			currentSetting.ShowTime = ShowMessageTime;
-			string currentSettingString = JsonConvert.SerializeObject(currentSetting, Formatting.Indented);
-			if (File.Exists("UserSetting.ini"))
-				File.Delete("UserSetting.ini");
-			File.WriteAllText("UserSetting.ini", currentSettingString);
+			try
+			{
+				//將目前設定儲存在UserSetting.ini中
+				UserSetting currentSetting = new UserSetting();
+				currentSetting.UserName = UserName;
+				currentSetting.ShowTime = ShowMessageTime;
+				string currentSettingString = JsonConvert.SerializeObject(currentSetting, Formatting.Indented);
+				if (File.Exists("UserSetting.ini"))
+					File.Delete("UserSetting.ini");
+				File.WriteAllText("UserSetting.ini", currentSettingString);
 
-			//啟動更新程式
-			Process.Start("Update.exe");
-			Environment.Exit(0);
+				//啟動更新程式
+				Process.Start("Update.exe");
+				Environment.Exit(0);
+			}
+			catch (Exception ex)
+			{
+				ShowMessage("更新Client時發生例外", $"{ex.Message}\r\n{ex.StackTrace}", NotificationType.Error);
+			}
+
 		}
 
 		/// <summary>
@@ -631,7 +679,15 @@ namespace ChatUI
 		/// <returns></returns>
 		public bool HasChinese (string str)
 		{
-			return Regex.IsMatch(str, @"[\u4e00-\u9fa5]");
+			try
+			{
+				return Regex.IsMatch(str, @"[\u4e00-\u9fa5]");
+			}
+			catch (Exception ex)
+			{
+				ShowMessage("判斷是否有中文字時發生例外", $"{ex.Message}\r\n{ex.StackTrace}", NotificationType.Error);
+				return false;
+			}
 		}
 
 		/// <summary>
@@ -749,8 +805,15 @@ namespace ChatUI
 		/// </summary>
 		private void ClearTextCommandAction ()
 		{
-			ChatText = "";
-			FlyOutSettingIsOpen = false;
+			try
+			{
+				ChatText = "";
+				FlyOutSettingIsOpen = false;
+			}
+			catch (Exception ex)
+			{
+				ShowMessage("清除目前聊天室文字時發生例外", $"{ex.Message}\r\n{ex.StackTrace}", NotificationType.Error);
+			}
 		}
 
 		/// <summary>
@@ -758,8 +821,15 @@ namespace ChatUI
 		/// </summary>
 		private void ShowSettingCommandAction ()
 		{
-			FlyOutSettingIsOpen = !FlyOutSettingIsOpen;
-			GetFTPFileList();
+			try
+			{
+				FlyOutSettingIsOpen = !FlyOutSettingIsOpen;
+				GetFTPFileList();
+			}
+			catch (Exception ex)
+			{
+				ShowMessage("設定顯示FlyOut時發生例外", $"{ex.Message}\r\n{ex.StackTrace}", NotificationType.Error);
+			}
 		}
 
 		/// <summary>
@@ -805,29 +875,36 @@ namespace ChatUI
 		/// </summary>
 		private void ReadSetting ()
 		{
-			//如果設定存在讀取設定
-			if (File.Exists("UserSetting.ini"))
+			try
 			{
-				var setting = File.ReadAllText("UserSetting.ini");
-				UserSetting convertSetting = JsonConvert.DeserializeObject<UserSetting>(setting);
-				UserName = convertSetting.UserName;
-				ShowMessageTime = convertSetting.ShowTime;
-			}
-			//如果設定不存在建立設定
-			else
-			{
-				string localUserName = "";
-				var host = Dns.GetHostEntry(Dns.GetHostName());
-				foreach (var ip in host.AddressList)
+				//如果設定存在讀取設定
+				if (File.Exists("UserSetting.ini"))
 				{
-					if (ip.AddressFamily == AddressFamily.InterNetwork)
-					{
-						localUserName = ip.ToString();
-						break;
-					}
+					var setting = File.ReadAllText("UserSetting.ini");
+					UserSetting convertSetting = JsonConvert.DeserializeObject<UserSetting>(setting);
+					UserName = convertSetting.UserName;
+					ShowMessageTime = convertSetting.ShowTime;
 				}
-				string defaultSetting = "{\"UserName\":\"" + localUserName + "\", \"ShowTime\":30}";
-				File.WriteAllText("UserSetting.ini", defaultSetting);
+				//如果設定不存在建立設定
+				else
+				{
+					string localUserName = "";
+					var host = Dns.GetHostEntry(Dns.GetHostName());
+					foreach (var ip in host.AddressList)
+					{
+						if (ip.AddressFamily == AddressFamily.InterNetwork)
+						{
+							localUserName = ip.ToString();
+							break;
+						}
+					}
+					string defaultSetting = "{\"UserName\":\"" + localUserName + "\", \"ShowTime\":30}";
+					File.WriteAllText("UserSetting.ini", defaultSetting);
+				}
+			}
+			catch (Exception ex)
+			{
+				ShowMessage("讀取使用者設定時發生例外", $"{ex.Message}\r\n{ex.StackTrace}", NotificationType.Error);
 			}
 		}
 
@@ -836,10 +913,18 @@ namespace ChatUI
 		/// </summary>
 		private void KillAllProcess ()
 		{
-			foreach (var process in Process.GetProcessesByName("ChatUI"))
+			try
 			{
-				process.Kill();
+				foreach (var process in Process.GetProcessesByName("ChatUI"))
+				{
+					process.Kill();
+				}
 			}
+			catch (Exception ex)
+			{
+				ShowMessage("刪除殘留Process時發生例外", $"{ex.Message}\r\n{ex.StackTrace}", NotificationType.Error);
+			}
+
 		}
 
 		/// <summary>
@@ -847,7 +932,14 @@ namespace ChatUI
 		/// </summary>
 		private void CloseCommandAction ()
 		{
-			State = WindowState.Minimized;
+			try
+			{
+				State = WindowState.Minimized;
+			}
+			catch (Exception ex)
+			{
+				ShowMessage("最小化視窗時發生例外", $"{ex.Message}\r\n{ex.StackTrace}", NotificationType.Error);
+			}
 		}
 
 		/// <summary>
@@ -855,7 +947,14 @@ namespace ChatUI
 		/// </summary>
 		private void SendMessageCommandAction ()
 		{
-			SendMessage();
+			try
+			{
+				SendMessage();
+			}
+			catch (Exception ex)
+			{
+				ShowMessage("傳送訊息時發生例外", $"{ex.Message}\r\n{ex.StackTrace}", NotificationType.Error);
+			}
 		}
 
 		/// <summary>
@@ -888,9 +987,16 @@ namespace ChatUI
 		/// <param name="e"></param>
 		private void Ws_OnClose (object sender, CloseEventArgs e)
 		{
-			ConnectStatus = "伺服器中斷連線...嘗試重連....";
-			StatusBackGroundColor = System.Windows.Media.Brushes.Orange;
-			InitialClient();
+			try
+			{
+				ConnectStatus = "伺服器中斷連線...嘗試重連....";
+				StatusBackGroundColor = System.Windows.Media.Brushes.Orange;
+				InitialClient();
+			}
+			catch (Exception ex)
+			{
+				ShowMessage("出發WebSocket OnClose事件時發生例外", $"{ex.Message}\r\n{ex.StackTrace}", NotificationType.Error);
+			}
 		}
 
 		/// <summary>
@@ -925,7 +1031,14 @@ namespace ChatUI
 		/// <param name="e"></param>
 		private void Ws_OnOpen (object sender, EventArgs e)
 		{
-			ConnectStatus = "伺服器連線成功!";
+			try
+			{
+				ConnectStatus = "伺服器連線成功!";
+			}
+			catch (Exception ex)
+			{
+				ShowMessage("觸發WebSocket OnOpen事件時發生例外", $"{ex.Message}\r\n{ex.StackTrace}", NotificationType.Error);
+			}
 		}
 
 		/// <summary>
@@ -933,111 +1046,159 @@ namespace ChatUI
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
+		[DllImport("user32")] public static extern int FlashWindow (IntPtr hwnd, bool bInvert);
 		private void Ws_OnMessage (object sender, MessageEventArgs e)
 		{
-			var ws = (sender as WebSocket);
-
-			if (ws is null)
+			try
 			{
-				return;
-			}
+				var ws = (sender as WebSocket);
 
-			string receiveData = e.Data;
-
-			if (receiveData.Contains("目前已連線使用者"))
-			{
-				var CurrentAddUserID = receiveData.Split(' ')[1];
-				App.Current.Dispatcher.Invoke((Action)delegate // <--- HERE
+				if (ws is null)
 				{
-					var userIP = CurrentAddUserID.Split(':')[0];
-					if (!AllUser.Any(x => x.UserIP == userIP))
-					{
-						AllUser.Add(new UserInfo()
-						{
-							UserIP = userIP,
-							IsLive = Visibility.Collapsed
-						});
-						ConnectCount++;
-					}
-				});
-				return;
-			}
+					return;
+				}
 
-			if (receiveData.Contains("開始分享畫面"))
-			{
-				var CurrentLivingUserIP = receiveData.Split(' ')[2].Split('(')[1].Replace(")", "");
-				App.Current.Dispatcher.Invoke((Action)delegate // <--- HERE
+				string receiveData = e.Data;
+
+				if (receiveData.Contains("目前已連線使用者"))
 				{
-
-					if (AllUser.Any(x => x.UserIP == CurrentLivingUserIP))
-					{
-						AllUser.Where(x => x.UserIP == CurrentLivingUserIP).FirstOrDefault().IsLive = Visibility.Visible;
-					}
-				});
-				return;
-			}
-
-			if (receiveData.Contains("停止分享畫面"))
-			{
-				var CurrentLivingUserIP = receiveData.Split(' ')[2].Split('(')[1].Replace(")", "");
-				App.Current.Dispatcher.Invoke((Action)delegate // <--- HERE
-				{
+					var CurrentAddUserID = receiveData.Split(' ')[1];
 					
-					if (AllUser.Any(x => x.UserIP == CurrentLivingUserIP))
+					App.Current.Dispatcher.Invoke((Action)delegate
 					{
-						AllUser.Where(x => x.UserIP == CurrentLivingUserIP).FirstOrDefault().IsLive = Visibility.Collapsed;
-					}
-				});
-				return;
-			}
-
-
-			if (receiveData.Contains("使用者") && receiveData.Contains("加入聊天"))
-			{
-				ShowMessage("通知", receiveData, NotificationType.Success);
-				var allLloginMessage = receiveData.Split(' ');
-				if (allLloginMessage.Length > 2)
-				{
-					App.Current.Dispatcher.Invoke((Action)delegate // <--- HERE
-					{
-						var userIP = allLloginMessage[1].Split(':')[0];
+						var userIP = CurrentAddUserID.Split(':')[0];
 						if (!AllUser.Any(x => x.UserIP == userIP))
 						{
+							ConnectCount++;
 							AllUser.Add(new UserInfo()
 							{
 								UserIP = userIP,
 								IsLive = Visibility.Collapsed
 							});
-							ConnectCount++;
 						}
 					});
 					return;
 				}
-			}
-			if (receiveData.Contains("使用者") && receiveData.Contains("離開聊天"))
-			{
-				ShowMessage("通知", receiveData, NotificationType.Success);
-				var allLloginMessage = receiveData.Split(' ');
-				if (allLloginMessage.Length > 2)
+
+				if (receiveData.Contains("開始分享畫面"))
 				{
-					App.Current.Dispatcher.Invoke((Action)delegate
+					var CurrentLivingUserIP = receiveData.Split(' ')[2].Split('(')[1].Replace(")", "");
+					App.Current.Dispatcher.Invoke((Action)delegate // <--- HERE
 					{
-						var userIP = allLloginMessage[1].Split(':')[0];
-						if (AllUser.Any(x => x.UserIP == userIP))
+
+						if (AllUser.Any(x => x.UserIP == CurrentLivingUserIP))
 						{
-							AllUser.Remove(AllUser.Where(x => x.UserIP == userIP).FirstOrDefault());
-							ConnectCount--;
+							AllUser.Where(x => x.UserIP == CurrentLivingUserIP).FirstOrDefault().IsLive = Visibility.Visible;
 						}
 					});
 					return;
 				}
+
+				if (receiveData.Contains("停止分享畫面"))
+				{
+					var CurrentLivingUserIP = receiveData.Split(' ')[2].Split('(')[1].Replace(")", "");
+					App.Current.Dispatcher.Invoke((Action)delegate // <--- HERE
+					{
+
+						if (AllUser.Any(x => x.UserIP == CurrentLivingUserIP))
+						{
+							AllUser.Where(x => x.UserIP == CurrentLivingUserIP).FirstOrDefault().IsLive = Visibility.Collapsed;
+						}
+					});
+					return;
+				}
+
+
+				if (receiveData.Contains("使用者") && receiveData.Contains("加入聊天"))
+				{
+					ShowMessage("通知", receiveData, NotificationType.Success);
+					var allLloginMessage = receiveData.Split(' ');
+					if (allLloginMessage.Length > 2)
+					{
+						App.Current.Dispatcher.Invoke((Action)delegate // <--- HERE
+						{
+							var userIP = allLloginMessage[1].Split(':')[0];
+							if (!AllUser.Any(x => x.UserIP == userIP))
+							{
+								AllUser.Add(new UserInfo()
+								{
+									UserIP = userIP,
+									IsLive = Visibility.Collapsed
+								});
+								ConnectCount++;
+							}
+						});
+						return;
+					}
+				}
+				if (receiveData.Contains("使用者") && receiveData.Contains("離開聊天"))
+				{
+					ShowMessage("通知", receiveData, NotificationType.Success);
+					var allLloginMessage = receiveData.Split(' ');
+					if (allLloginMessage.Length > 2)
+					{
+						App.Current.Dispatcher.Invoke((Action)delegate
+						{
+							var userIP = allLloginMessage[1].Split(':')[0];
+							if (AllUser.Any(x => x.UserIP == userIP))
+							{
+								AllUser.Remove(AllUser.Where(x => x.UserIP == userIP).FirstOrDefault());
+								ConnectCount--;
+							}
+						});
+						return;
+					}
+				}
+
+				ChatText += receiveData.Replace("\n\n", "\n");
+				if (receiveData.Contains($"@{UserName}"))
+				{
+					switch (State)
+					{
+						case WindowState.Maximized:
+						case WindowState.Normal:
+						ShowMessage("通知", receiveData, NotificationType.Success);
+						App.Current.Dispatcher.Invoke((Action)delegate
+						{
+							WindowInteropHelper wih = new WindowInteropHelper((Window)Window);
+							FlashWindow(wih.Handle, true);
+
+						});
+						break;
+						case WindowState.Minimized:
+						ShowMessage("通知", receiveData, NotificationType.Success);
+						State = WindowState.Minimized;
+
+						ShowInToolBar = true;
+						MainWindowVisibly = Visibility.Visible;
+						Thread th = new Thread(() =>
+						{
+							while (State != WindowState.Normal)
+							{
+								App.Current.Dispatcher.Invoke((Action)delegate
+								{
+									WindowInteropHelper wih = new WindowInteropHelper((Window)Window);
+									FlashWindow(wih.Handle, true);
+								});
+								Thread.Sleep(1000);
+							}
+						});
+						th.Start();
+
+
+						break;
+					}
+
+				}
+
+				if (!receiveData.Contains(UserName))
+				{
+					ShowMessage("通知", receiveData, NotificationType.Success);
+				}
 			}
-
-			ChatText += receiveData.Replace("\n\n", "\n");
-
-			if (!receiveData.Contains(UserName))
+			catch (Exception ex)
 			{
-				ShowMessage("通知", receiveData, NotificationType.Success);
+				ShowMessage("觸發WebSocket OnMessage事件時發生例外", $"{ex.Message}\r\n{ex.StackTrace}", NotificationType.Error);
 			}
 		}
 
@@ -1046,33 +1207,40 @@ namespace ChatUI
 		/// </summary>
 		public void SendMessage ()
 		{
-			if (string.IsNullOrEmpty(InPut))
+			try
 			{
-				return;
-			}
-			if (!string.IsNullOrEmpty(InPut.Replace("\r", "").Replace("\n", "")))
-			{
-				string CryptoKey = "54088";
-				string result;
-				AesCryptoServiceProvider aes = new AesCryptoServiceProvider();
-				MD5CryptoServiceProvider md5 = new MD5CryptoServiceProvider();
-				SHA256CryptoServiceProvider sha256 = new SHA256CryptoServiceProvider();
-				byte[] key = sha256.ComputeHash(Encoding.UTF8.GetBytes(CryptoKey));
-				byte[] iv = md5.ComputeHash(Encoding.UTF8.GetBytes(CryptoKey));
-				aes.Key = key;
-				aes.IV = iv;
-
-				byte[] dataByteArray = Encoding.UTF8.GetBytes($"[{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}] {UserName}({CurrentIP}) : {InPut}\n");
-				using (MemoryStream ms = new MemoryStream())
-				using (CryptoStream cs = new CryptoStream(ms, aes.CreateEncryptor(), CryptoStreamMode.Write))
+				if (string.IsNullOrEmpty(InPut))
 				{
-					cs.Write(dataByteArray, 0, dataByteArray.Length);
-					cs.FlushFinalBlock();
-					result = Convert.ToBase64String(ms.ToArray());
+					return;
 				}
-				WebSocketClient.Send(result);
-				PreviousInput = InPut;
-				InPut = "";
+				if (!string.IsNullOrEmpty(InPut.Replace("\r", "").Replace("\n", "")))
+				{
+					string CryptoKey = "54088";
+					string result;
+					AesCryptoServiceProvider aes = new AesCryptoServiceProvider();
+					MD5CryptoServiceProvider md5 = new MD5CryptoServiceProvider();
+					SHA256CryptoServiceProvider sha256 = new SHA256CryptoServiceProvider();
+					byte[] key = sha256.ComputeHash(Encoding.UTF8.GetBytes(CryptoKey));
+					byte[] iv = md5.ComputeHash(Encoding.UTF8.GetBytes(CryptoKey));
+					aes.Key = key;
+					aes.IV = iv;
+
+					byte[] dataByteArray = Encoding.UTF8.GetBytes($"[{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}] {UserName}({CurrentIP}) : {InPut}\n");
+					using (MemoryStream ms = new MemoryStream())
+					using (CryptoStream cs = new CryptoStream(ms, aes.CreateEncryptor(), CryptoStreamMode.Write))
+					{
+						cs.Write(dataByteArray, 0, dataByteArray.Length);
+						cs.FlushFinalBlock();
+						result = Convert.ToBase64String(ms.ToArray());
+					}
+					WebSocketClient.Send(result);
+					PreviousInput = InPut;
+					InPut = "";
+				}
+			}
+			catch (Exception ex)
+			{
+				ShowMessage("傳送訊息時發生例外", $"{ex.Message}\r\n{ex.StackTrace}", NotificationType.Error);
 			}
 		}
 
@@ -1084,21 +1252,28 @@ namespace ChatUI
 		/// <param name="type"></param>
 		public void ShowMessage (string title, string message, NotificationType type)
 		{
-			if (!Notify && (type == NotificationType.Success || type == NotificationType.Information))
+			try
 			{
-				return;
-			}
-
-			var notificationManager = new NotificationManager();
-			if(ShowMessageTime != 0)
-			{
-				var ts = TimeSpan.FromSeconds(ShowMessageTime);
-				notificationManager.Show(new NotificationContent
+				if (!Notify && (type == NotificationType.Success || type == NotificationType.Information))
 				{
-					Title = title,
-					Message = message,
-					Type = type,
-				}, "", ts, () => State = WindowState.Normal);
+					return;
+				}
+
+				var notificationManager = new NotificationManager();
+				if (ShowMessageTime != 0)
+				{
+					var ts = TimeSpan.FromSeconds(ShowMessageTime);
+					notificationManager.Show(new NotificationContent
+					{
+						Title = title,
+						Message = message,
+						Type = type,
+					}, "", ts, () => State = WindowState.Normal);
+				}
+			}
+			catch (Exception ex)
+			{
+				ShowMessage("顯示訊息時發生例外", $"{ex.Message}\r\n{ex.StackTrace}", NotificationType.Error);
 			}
 		}
 		#endregion

@@ -8,7 +8,7 @@ using WebSocketSharp.Server;
 
 namespace ChatUI
 {
-	public class ShareService
+	public class ShareService:IDisposable
 	{
 		#region Property
 		/// <summary>
@@ -41,33 +41,39 @@ namespace ChatUI
 		{
 			while (true)
 			{
-				if (Sharing)
+				try
 				{
-					try
+					var bmpScreenshot = new Bitmap(Screen.PrimaryScreen.Bounds.Width,
+												Screen.PrimaryScreen.Bounds.Height,
+												PixelFormat.Format32bppArgb);
+					var gfxScreenshot = Graphics.FromImage(bmpScreenshot);
+
+					gfxScreenshot.CopyFromScreen(Screen.PrimaryScreen.Bounds.X,
+												Screen.PrimaryScreen.Bounds.Y,
+												0,
+												0,
+												Screen.PrimaryScreen.Bounds.Size,
+												CopyPixelOperation.SourceCopy);
+
+					System.IO.MemoryStream ms = new MemoryStream();
+					bmpScreenshot.Save(ms, ImageFormat.Jpeg);
+					byte[] byteImage = ms.ToArray();
+					var SigBase64 = Convert.ToBase64String(byteImage);
+					if (SocketServer.IsListening)
 					{
-						var bmpScreenshot = new Bitmap(Screen.PrimaryScreen.Bounds.Width,
-												   Screen.PrimaryScreen.Bounds.Height,
-												   PixelFormat.Format32bppArgb);
-						var gfxScreenshot = Graphics.FromImage(bmpScreenshot);
-
-						gfxScreenshot.CopyFromScreen(Screen.PrimaryScreen.Bounds.X,
-													Screen.PrimaryScreen.Bounds.Y,
-													0,
-													0,
-													Screen.PrimaryScreen.Bounds.Size,
-													CopyPixelOperation.SourceCopy);
-
-						System.IO.MemoryStream ms = new MemoryStream();
-						bmpScreenshot.Save(ms, ImageFormat.Jpeg);
-						byte[] byteImage = ms.ToArray();
-						var SigBase64 = Convert.ToBase64String(byteImage);
-
 						SocketServer.WebSocketServices["/Connect"].Sessions.Broadcast(SigBase64);
 					}
-					catch { }
+					
 				}
+				catch { }
 				Thread.Sleep(100);
 			}
+		}
+
+		public void Dispose ()
+		{
+			SocketServer = null;
+			this.Dispose();
 		}
 		#endregion
 	}
