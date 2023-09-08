@@ -24,28 +24,39 @@ namespace Server
 			ClientList.Add(this);
 
 			//通知所有以連線使用者目前登入的使用者
-			foreach (var item in ClientList)
-			{
-				item.Send($"使用者 {this.Context.UserEndPoint} 加入聊天\n");
-			}
+			
+				foreach (var item in ClientList)
+				{
+					item.Send($"使用者 {this.Context.UserEndPoint} 加入聊天\n");
+				}
+				
+			
 			var current = ClientList.Where(x => x.Context.UserEndPoint == this.Context.UserEndPoint).FirstOrDefault();
 			foreach (var item in ClientList)
 			{
 				current.Send($"[目前已連線使用者] {item.Context.UserEndPoint}");
 			}
+
+
+
 		}
 		protected override void OnClose (CloseEventArgs e)
 		{
-			foreach (var item in ClientList)
+			if(ClientList.Any(x=>x.Context.UserEndPoint == this.Context.UserEndPoint))
 			{
-				try
+				foreach (var item in ClientList)
 				{
-					item.Send($"使用者 {this.Context.UserEndPoint} 離開聊天\n");
-				}
-				catch { }
+					try
+					{
+						item.Send($"使用者 {this.Context.UserEndPoint} 離開聊天\n");
+					}
+					catch { }
 
+				}
+				ClientList.Remove(this);
 			}
-			ClientList.Remove(this);
+			
+			
 		}
 		protected override void OnMessage (MessageEventArgs e)
 		{

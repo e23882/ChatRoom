@@ -58,6 +58,19 @@ namespace ChatUI
 		#endregion
 
 		#region Property
+		private bool _CanSendMessage = true;
+		public bool CanSendMessage
+		{
+			get
+			{
+				return _CanSendMessage;
+			}
+			set
+			{
+				_CanSendMessage = value;
+				OnPropertyChanged();
+			}
+		}
 		public string UpdateBadgeText
 		{
 			get
@@ -370,6 +383,8 @@ namespace ChatUI
 		/// </summary>
 		public NoParameterCommand ShowSettingCommand { get; set; }
 
+		public NoParameterCommand SendImageCommand { get; set; }
+
 		/// <summary>
 		/// 主程式執行時，ICON是否在window toolbar(最小化不顯示)
 		/// </summary>
@@ -617,12 +632,31 @@ namespace ChatUI
 				DeleteFileCommand = new NoParameterCommand(DeleteFileCommandAction);
 				UpgradeCommand = new NoParameterCommand(UpgradeCommandAction);
 				WatchLiveCommand = new RelayCommand(WatchLiveCommandAction);
+				SendImageCommand = new NoParameterCommand(SendImageCommandAction);
 			}
 			catch (Exception ex)
 			{
 				ShowMessage("通知", $"初始化命令發生例外 {ex.Message}", NotificationType.Error);
 			}
 		}
+
+		bool chooseImageIsOpen = false;
+		private void SendImageCommandAction ()
+		{
+			if (!chooseImageIsOpen)
+			{
+				chooseImageIsOpen = true;
+				ChooseImage img = new ChooseImage();
+				img.Show();
+				img.Closed += Img_Closed;
+			}
+		}
+
+		private void Img_Closed (object sender, EventArgs e)
+		{
+			chooseImageIsOpen = false;
+		}
+
 
 		/// <summary>
 		/// 觀看分享畫面
@@ -1059,7 +1093,10 @@ namespace ChatUI
 				}
 
 				string receiveData = e.Data;
-
+				if (receiveData.Contains("[img]"))
+				{
+					return;
+				}
 				if (receiveData.Contains("目前已連線使用者"))
 				{
 					var CurrentAddUserID = receiveData.Split(' ')[1];
@@ -1242,10 +1279,23 @@ namespace ChatUI
 					{
 						sendAllCount = 0;
 					}
+
 					if(sendAllCount > 2)
 					{
-						ShowMessage("傳太多次彈幕了，不讓你傳", $"不讓你傳", NotificationType.Error);
-						sendAllCount = 0;
+						ShowMessage("傳太多次彈幕了，不讓你傳", $"不讓你傳，鎖定15秒", NotificationType.Error);
+						
+						CanSendMessage = false;
+						App.Current.Dispatcher.Invoke((Action)delegate
+						{
+							Thread th = new Thread(() =>
+							{
+								//鎖定十秒
+								Thread.Sleep(15 * 1000);
+								CanSendMessage = true;
+								sendAllCount = 0;
+							});
+							th.Start();
+						});
 					}
 					else
 					{

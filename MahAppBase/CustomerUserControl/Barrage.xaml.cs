@@ -44,7 +44,7 @@ namespace ChatUI
 				string receiveData = e.Data;
                 if (receiveData.Contains("Bug") || receiveData.Contains("bug") || receiveData.Contains("BUG"))
                 {
-                    BarrageImage();
+                    BarrageImage("bug");
                 }
                 if (receiveData.Contains("@All") 
                     || receiveData.Contains("@ALL")
@@ -60,13 +60,19 @@ namespace ChatUI
                     list.Add(allData[2] + " " + message);
                     BarrageMessage(list);
                 }
+				if (receiveData.Contains("[img]"))
+				{
+                    var imageIndex = receiveData.Split(' ')[1];
+                    BarrageImage(imageIndex);
+
+                }
 			}
 			catch (Exception ex)
 			{
 			}
 		}
 
-		private void BarrageImage ()
+		private void BarrageImage (string imageIndex)
 		{
             Random random = new Random();
 
@@ -77,7 +83,25 @@ namespace ChatUI
             double randomspeed = random.NextDouble();
             double initspeed = 10 * randomspeed;
 
-            var data = Properties.Resources.bug1;
+            Bitmap data = null;
+            switch (imageIndex)
+            {
+                case "1":
+                    data = Properties.Resources.EatYourShit;
+                    break;
+                case "2":
+                    data = Properties.Resources.AllGarbege;
+                    break;
+                case "3":
+                    data = Properties.Resources.wut;
+                    break;
+                case "4":
+                    data = Properties.Resources.shock;
+                    break;
+                case "bug":
+                    data = Properties.Resources.bug1;
+                    break;
+            }
             BitmapImage bitmapImage;
             using (var memory = new MemoryStream())
             {
@@ -96,7 +120,15 @@ namespace ChatUI
             Application.Current.Dispatcher.Invoke(() => {
 				//实例化TextBlock和设置基本属性,并添加到Canvas中
 				System.Windows.Controls.Image img = new System.Windows.Controls.Image();
+                img.Opacity = 0.3;
+                img.Width = 200;
+                img.Width = 200;
                 img.Source = bitmapImage;
+                if (canvas.Height - initspeed < 150)
+                {
+                    initspeed -= 150;
+
+                }
                 Canvas.SetTop(img, inittop);
                 canvas.Children.Add(img);
                 DoubleAnimation animation = new DoubleAnimation();
@@ -146,6 +178,11 @@ namespace ChatUI
                     textblock.Text = item;
                     textblock.FontSize = 50;
                     textblock.Foreground = System.Windows.Media.Brushes.Red;
+                    if(canvas.Height - initspeed < 100)
+					{
+                        initspeed -= 100;
+
+                    }
                     Canvas.SetTop(textblock, inittop);
                     canvas.Children.Add(textblock);
                     DoubleAnimation animation = new DoubleAnimation();

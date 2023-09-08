@@ -31,6 +31,7 @@ namespace Update
 					{
 						StartChatUI();
 					}
+					break;
 				}
 				catch(Exception ex) 
 				{

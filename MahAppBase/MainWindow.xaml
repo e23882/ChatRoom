@@ -45,7 +45,7 @@
         <KeyBinding Gesture="Enter" Command="{Binding SendCommand}"/>
         <KeyBinding Gesture="Esc" Command="{Binding CloseCommand}"/>
         <KeyBinding Gesture="F1" Command="{Binding ShowSettingCommand}"/>
-        <KeyBinding Gesture="F5" Command="{Binding EnableAdminCommand}"/>
+        <KeyBinding Gesture="F5" Command="{Binding SendImageCommand}"/>
     </controls:MetroWindow.InputBindings>
     <Grid>
         <Grid.RowDefinitions>
@@ -110,7 +110,7 @@
                             <iconPacks:PackIconModern Width="26"  Kind="People" VerticalAlignment="Center" Margin="50,0,0,0"/>
                             <TextBlock Text="{Binding ConnectCount}" VerticalAlignment="Center" FontSize="18"/>
                         </StackPanel>
-                        <TextBox TextWrapping="Wrap" AcceptsReturn="True" Grid.Row="1" Grid.Column="0" Height="40" BorderBrush="#333333" BorderThickness="1" KeyUp="TextBox_KeyUp" TextChanged="TextBox_TextChanged" Text="{Binding InPut, UpdateSourceTrigger=PropertyChanged}"/>
+                        <TextBox TextWrapping="Wrap" AcceptsReturn="True" Grid.Row="1" Grid.Column="0" Height="40" BorderBrush="#333333" BorderThickness="1" KeyUp="TextBox_KeyUp" TextChanged="TextBox_TextChanged" IsEnabled="{Binding CanSendMessage}" Text="{Binding InPut, UpdateSourceTrigger=PropertyChanged}"/>
                         <StackPanel Grid.Row="1"  Grid.Column="1" Orientation="Horizontal" >
                             <Button Content="傳送檔案" Padding="10,2" Grid.Row="1"  Grid.Column="1" FontSize="15" Command="{Binding SendDataCommand}" BorderBrush="#333333"/>
                             <Button Content="SEND" Padding="10,0" Grid.Row="1"  Grid.Column="1" FontSize="15" Command="{Binding SendMessageCommand}" BorderBrush="#333333"/>

@@ -107,6 +107,9 @@
     <Compile Include="CustomerUserControl\Barrage.xaml.cs">
       <DependentUpon>Barrage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="CustomerUserControl\ChooseImage.xaml.cs">
+      <DependentUpon>ChooseImage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="CustomerUserControl\Live.xaml.cs">
       <DependentUpon>Live.xaml</DependentUpon>
     </Compile>
@@ -120,6 +123,10 @@
     <Compile Include="ViewModel\Status.cs" />
     <Compile Include="ViewModel\ViewModelBase.cs" />
     <Page Include="CustomerUserControl\Barrage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="CustomerUserControl\ChooseImage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -208,6 +215,18 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\bug.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\933b12890bc70dba158e63a122715fe5.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\e432f02b115205b327748359e8c517f7.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\6446d860dbbfe540e9e2cbab5f98f1e3-4.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\擷取.JPG" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
