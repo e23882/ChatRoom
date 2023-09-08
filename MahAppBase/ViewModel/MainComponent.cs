@@ -468,7 +468,8 @@ namespace ChatUI
 		{
 			try
 			{
-				InPut = PreviousInput.Replace("\r", "").Replace("\n", "");
+				if(PreviousInput != null)
+					InPut = PreviousInput.Replace("\r", "").Replace("\n", "");
 			}
 			catch (Exception ex)
 			{
@@ -1091,12 +1092,16 @@ namespace ChatUI
 				{
 					return;
 				}
-
+				//接收到的訊息
 				string receiveData = e.Data;
-				if (receiveData.Contains("[img]"))
+
+				var sendMessage = FilterMessage(receiveData);
+				if (!sendMessage)
 				{
 					return;
 				}
+				
+				
 				if (receiveData.Contains("目前已連線使用者"))
 				{
 					var CurrentAddUserID = receiveData.Split(' ')[1];
@@ -1148,26 +1153,40 @@ namespace ChatUI
 
 				if (receiveData.Contains("使用者") && receiveData.Contains("加入聊天"))
 				{
-					ShowMessage("通知", receiveData, NotificationType.Success);
-					var allLloginMessage = receiveData.Split(' ');
-					if (allLloginMessage.Length > 2)
+					bool alreadyJoin = false;
+					foreach(var item in AllUser)
 					{
-						App.Current.Dispatcher.Invoke((Action)delegate // <--- HERE
+						if (receiveData.Contains(item.UserIP))
 						{
-							var userIP = allLloginMessage[1].Split(':')[0];
-							if (!AllUser.Any(x => x.UserIP == userIP))
-							{
-								AllUser.Add(new UserInfo()
-								{
-									UserIP = userIP,
-									IsLive = Visibility.Collapsed
-								});
-								ConnectCount++;
-							}
-						});
-						return;
+							alreadyJoin = true;
+							break;
+						}
 					}
+					if (!alreadyJoin)
+					{
+						ShowMessage("通知", receiveData, NotificationType.Success);
+						var allLloginMessage = receiveData.Split(' ');
+						if (allLloginMessage.Length > 2)
+						{
+							App.Current.Dispatcher.Invoke((Action)delegate // <--- HERE
+							{
+								var userIP = allLloginMessage[1].Split(':')[0];
+								if (!AllUser.Any(x => x.UserIP == userIP))
+								{
+									AllUser.Add(new UserInfo()
+									{
+										UserIP = userIP,
+										IsLive = Visibility.Collapsed
+									});
+									ConnectCount++;
+								}
+							});
+							return;
+						}
+					}
+					
 				}
+				
 				if (receiveData.Contains("使用者") && receiveData.Contains("離開聊天"))
 				{
 					ShowMessage("通知", receiveData, NotificationType.Success);
@@ -1221,11 +1240,8 @@ namespace ChatUI
 							}
 						});
 						th.Start();
-
-
 						break;
 					}
-
 				}
 
 				if (!receiveData.Contains(UserName))
@@ -1236,6 +1252,18 @@ namespace ChatUI
 			catch (Exception ex)
 			{
 				ShowMessage("觸發WebSocket OnMessage事件時發生例外", $"{ex.Message}\r\n{ex.StackTrace}", NotificationType.Error);
+			}
+		}
+
+		private bool FilterMessage (string receiveData)
+		{
+			if (receiveData.Contains("[img]"))
+			{
+				return false;
+			}
+			else
+			{
+				return true;
 			}
 		}
 

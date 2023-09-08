@@ -120,7 +120,7 @@ namespace ChatUI
             Application.Current.Dispatcher.Invoke(() => {
 				//实例化TextBlock和设置基本属性,并添加到Canvas中
 				System.Windows.Controls.Image img = new System.Windows.Controls.Image();
-                img.Opacity = 0.3;
+                img.Opacity = 0.2;
                 img.Width = 200;
                 img.Width = 200;
                 img.Source = bitmapImage;

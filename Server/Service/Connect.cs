@@ -42,21 +42,17 @@ namespace Server
 		}
 		protected override void OnClose (CloseEventArgs e)
 		{
-			if(ClientList.Any(x=>x.Context.UserEndPoint == this.Context.UserEndPoint))
-			{
-				foreach (var item in ClientList)
-				{
-					try
-					{
-						item.Send($"使用者 {this.Context.UserEndPoint} 離開聊天\n");
-					}
-					catch { }
+			ClientList.Remove(this);
 
+			foreach (var item in ClientList)
+			{
+				try
+				{
+					item.Send($"使用者 {this.Context.UserEndPoint} 離開聊天\n");
 				}
-				ClientList.Remove(this);
+				catch { }
 			}
-			
-			
+			Console.WriteLine($"目前使用者數量 {ClientList.Count()}");
 		}
 		protected override void OnMessage (MessageEventArgs e)
 		{

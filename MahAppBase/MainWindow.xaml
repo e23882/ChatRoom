@@ -164,10 +164,6 @@
                             <TextBlock Text="啟用通知" VerticalAlignment="Center" Margin="15,0,0,0"/>
                             <controls:ToggleSwitchButton Height="28" IsChecked="{Binding Notify}" ToolTip="儲存設定(功能啟用、視窗配置)" Margin="10,0,0,0"/>
                         </StackPanel>
-                        <StackPanel Orientation="Horizontal" Margin="0,20,0,0">
-                            <TextBlock Text="視窗顯示在最上層" VerticalAlignment="Center" Margin="15,0,0,0"/>
-                            <controls:ToggleSwitchButton Height="28" IsChecked="{Binding IsTopMost}" ToolTip="儲存設定(功能啟用、視窗配置)" Margin="10,0,0,0"/>
-                        </StackPanel>
                     </StackPanel>
                     <DataGrid Grid.Row="1" ItemsSource="{Binding FileList}" AutoGenerateColumns="False" SelectedItem="{Binding SelectedFile}" CanUserAddRows="False" Margin="0,10,0,0">
                         <DataGrid.Columns>
