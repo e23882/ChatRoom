@@ -120,7 +120,6 @@
     <Compile Include="Service\ShareService.cs" />
     <Compile Include="ViewModel\LiveViewModel.cs" />
     <Compile Include="ViewModel\MainComponent.cs" />
-    <Compile Include="ViewModel\Status.cs" />
     <Compile Include="ViewModel\ViewModelBase.cs" />
     <Page Include="CustomerUserControl\Barrage.xaml">
       <SubType>Designer</SubType>
