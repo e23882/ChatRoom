@@ -5,10 +5,17 @@ namespace Server
     public class Server
     {
         #region Property
+        /// <summary>
+        /// Socket Server IP
+        /// </summary>
         public WebSocketServer SocketServer { get; set; }
         #endregion
 
         #region Memberfunction
+        /// <summary>
+        /// Server建構子
+        /// </summary>
+        /// <param name="port"></param>
         public Server(int port)
         {
             //設定服務的Port
@@ -32,7 +39,6 @@ namespace Server
         {
             SocketServer.Stop();
         }
-
         #endregion
     }
 }

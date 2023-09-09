@@ -20,26 +20,26 @@ using System.Runtime.InteropServices;
 
 namespace ChatUI
 {
-	public class MainComponent: ViewModelBase
+	public class MainComponent : ViewModelBase
 	{
 		#region Declarations
-		Thread _ShareThread = null;
+		private Thread _ShareThread = null;
 
-		ShareService _server = null;
+		private ShareService _server = null;
 
 		private FtpFile _SelectedFile = new FtpFile();
 
 		private NotifyIcon nIcon = new NotifyIcon();
 
-		private WindowState _State;
+		private WindowState _State = WindowState.Normal;
 
 		private Visibility _MainWindowVisibly = Visibility.Visible;
 
 		private bool _ShowInToolBar = true;
 		private bool _FlyOutSettingIsOpen = false;
-		private bool _ShareScreen;
+		private bool _ShareScreen = true;
 		private bool _Notify = true;
-
+		private bool _CanSendMessage = true;
 
 		private int _ShowMessageTime = 3;
 		private int _ConnectCount;
@@ -50,7 +50,6 @@ namespace ChatUI
 		private string _ConnectStatus = string.Empty;
 		private string _UpdateBadgeText = "Update";
 
-
 		private System.Windows.Media.Brush _StatusBackGroundColor;
 
 		private ObservableCollection<UserInfo> _AllUser = new ObservableCollection<UserInfo>();
@@ -58,7 +57,9 @@ namespace ChatUI
 		#endregion
 
 		#region Property
-		private bool _CanSendMessage = true;
+		/// <summary>
+		/// 是否可以傳送訊息(用在有人一直發彈幕，鎖住他的介面)
+		/// </summary>
 		public bool CanSendMessage
 		{
 			get
@@ -71,6 +72,10 @@ namespace ChatUI
 				OnPropertyChanged();
 			}
 		}
+
+		/// <summary>
+		/// 更新按鈕提示文字(Update)
+		/// </summary>
 		public string UpdateBadgeText
 		{
 			get
@@ -413,15 +418,15 @@ namespace ChatUI
 					switch (_State)
 					{
 						case WindowState.Minimized:
-						//nIcon.Visible = true;
-						ShowInToolBar = true;
-						//MainWindowVisibly = Visibility.Hidden;
-						return _State;
+							//nIcon.Visible = true;
+							ShowInToolBar = true;
+							//MainWindowVisibly = Visibility.Hidden;
+							return _State;
 						case WindowState.Normal:
-						//nIcon.Visible = false;
-						ShowInToolBar = true;
-						//MainWindowVisibly = Visibility.Visible;
-						return _State;
+							//nIcon.Visible = false;
+							ShowInToolBar = true;
+							//MainWindowVisibly = Visibility.Visible;
+							return _State;
 					}
 				}
 				catch (Exception ex)
@@ -464,11 +469,11 @@ namespace ChatUI
 		/// <summary>
 		/// 按 "上" 按鈕 Command action
 		/// </summary>
-		public void PressUpButtonCommandAction ()
+		public void PressUpButtonCommandAction()
 		{
 			try
 			{
-				if(PreviousInput != null)
+				if (PreviousInput != null)
 					InPut = PreviousInput.Replace("\r", "").Replace("\n", "");
 			}
 			catch (Exception ex)
@@ -480,7 +485,7 @@ namespace ChatUI
 		/// <summary>
 		/// 初始化主程式工具列圖案、相關功能
 		/// </summary>
-		public void InitIcon ()
+		public void InitIcon()
 		{
 			var cm = new ContextMenu();
 			try
@@ -512,7 +517,7 @@ namespace ChatUI
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
-		private void Mi_Click (object sender, EventArgs e)
+		private void Mi_Click(object sender, EventArgs e)
 		{
 			try
 			{
@@ -522,19 +527,19 @@ namespace ChatUI
 				switch ((sender as MenuItem).Text)
 				{
 					case "放大":
-					State = WindowState.Normal;
-					break;
+						State = WindowState.Normal;
+						break;
 					case "關閉":
-					UserSetting currentSetting = new UserSetting();
-					currentSetting.UserName = UserName;
-					currentSetting.ShowTime = ShowMessageTime;
-					string currentSettingString = JsonConvert.SerializeObject(currentSetting, Formatting.Indented);
-					if (File.Exists("UserSetting.ini"))
-						File.Delete("UserSetting.ini");
-					File.WriteAllText("UserSetting.ini", currentSettingString);
-					KillAllProcess();
-					Environment.Exit(0);
-					break;
+						UserSetting currentSetting = new UserSetting();
+						currentSetting.UserName = UserName;
+						currentSetting.ShowTime = ShowMessageTime;
+						string currentSettingString = JsonConvert.SerializeObject(currentSetting, Formatting.Indented);
+						if (File.Exists("UserSetting.ini"))
+							File.Delete("UserSetting.ini");
+						File.WriteAllText("UserSetting.ini", currentSettingString);
+						KillAllProcess();
+						Environment.Exit(0);
+						break;
 				}
 			}
 			catch (Exception ex)
@@ -549,7 +554,7 @@ namespace ChatUI
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
-		private void NIcon_MouseDoubleClick (object sender, MouseEventArgs e)
+		private void NIcon_MouseDoubleClick(object sender, MouseEventArgs e)
 		{
 			try
 			{
@@ -564,7 +569,7 @@ namespace ChatUI
 		/// <summary>
 		/// 建構子
 		/// </summary>
-		public MainComponent ()
+		public MainComponent()
 		{
 			try
 			{
@@ -589,7 +594,7 @@ namespace ChatUI
 
 				ReadSetting();
 				ShowMessage("通知", $"初始化設定", NotificationType.Success);
-
+				chooseImageWindow = new ChooseImage();
 			}
 			catch (Exception ex)
 			{
@@ -600,7 +605,7 @@ namespace ChatUI
 		/// <summary>
 		/// 初始化分享畫面服務方法
 		/// </summary>
-		private void InitShareService ()
+		private void InitShareService()
 		{
 			try
 			{
@@ -620,7 +625,7 @@ namespace ChatUI
 		/// <summary>
 		/// 初始化Command
 		/// </summary>
-		private void InitCommand ()
+		private void InitCommand()
 		{
 			try
 			{
@@ -640,29 +645,16 @@ namespace ChatUI
 				ShowMessage("通知", $"初始化命令發生例外 {ex.Message}", NotificationType.Error);
 			}
 		}
-
-		bool chooseImageIsOpen = false;
-		private void SendImageCommandAction ()
+		ChooseImage chooseImageWindow = null;
+		private void SendImageCommandAction()
 		{
-			if (!chooseImageIsOpen)
-			{
-				chooseImageIsOpen = true;
-				ChooseImage img = new ChooseImage();
-				img.Show();
-				img.Closed += Img_Closed;
-			}
+			chooseImageWindow.Show();
 		}
-
-		private void Img_Closed (object sender, EventArgs e)
-		{
-			chooseImageIsOpen = false;
-		}
-
 
 		/// <summary>
 		/// 觀看分享畫面
 		/// </summary>
-		private void WatchLiveCommandAction (object parameter)
+		private void WatchLiveCommandAction(object parameter)
 		{
 			try
 			{
@@ -683,7 +675,7 @@ namespace ChatUI
 		/// <summary>
 		/// 更新Client
 		/// </summary>
-		private void UpgradeCommandAction ()
+		private void UpgradeCommandAction()
 		{
 			try
 			{
@@ -712,7 +704,7 @@ namespace ChatUI
 		/// </summary>
 		/// <param name="str"></param>
 		/// <returns></returns>
-		public bool HasChinese (string str)
+		public bool HasChinese(string str)
 		{
 			try
 			{
@@ -728,11 +720,11 @@ namespace ChatUI
 		/// <summary>
 		/// 刪除檔案
 		/// </summary>
-		private void DeleteFileCommandAction ()
+		private void DeleteFileCommandAction()
 		{
 			try
 			{
-				FtpWebRequest request = (FtpWebRequest)WebRequest.Create($"ftp://10.93.9.117//{SelectedFile.FileName}");
+				FtpWebRequest request = (FtpWebRequest)WebRequest.Create($"ftp://localhost//{SelectedFile.FileName}");
 				request.Credentials = new NetworkCredential("anonymous", "anonymous@example.com");
 				request.Method = WebRequestMethods.Ftp.DeleteFile;
 				FtpWebResponse response = (FtpWebResponse)request.GetResponse();
@@ -751,7 +743,7 @@ namespace ChatUI
 		/// <summary>
 		/// 下載FTP檔案
 		/// </summary>
-		private void DownloadFileCommandAction ()
+		private void DownloadFileCommandAction()
 		{
 			using (var dialog = new FolderBrowserDialog())
 			{
@@ -760,7 +752,7 @@ namespace ChatUI
 				{
 					try
 					{
-						string ftpServer = $"ftp://10.93.9.117//{SelectedFile.FileName}"; // FTP 服务器地址
+						string ftpServer = $"ftp://localhost//{SelectedFile.FileName}"; // FTP 服务器地址
 						WebClient client = new WebClient();
 						client.Credentials = new NetworkCredential("anonymous", "anonymous@example.com");
 						client.DownloadFile(ftpServer, $"{dialog.SelectedPath}//{SelectedFile.FileName}");
@@ -777,7 +769,7 @@ namespace ChatUI
 		/// <summary>
 		/// 傳送訊息
 		/// </summary>
-		private void SendDataCommandAction ()
+		private void SendDataCommandAction()
 		{
 			try
 			{
@@ -789,7 +781,7 @@ namespace ChatUI
 						ShowMessage("通知", $"不能上傳包含中文的檔案", NotificationType.Warning);
 						return;
 					}
-					string ftpServer = $"ftp://10.93.9.117/{dialog.SafeFileName}";
+					string ftpServer = $"ftp://localhost/{dialog.SafeFileName}";
 
 					string tempFolder = Path.GetTempPath();
 					//檢查是不是網路磁碟機，是的話先抓回來
@@ -838,7 +830,7 @@ namespace ChatUI
 		/// <summary>
 		/// 清除目前聊天室文字
 		/// </summary>
-		private void ClearTextCommandAction ()
+		private void ClearTextCommandAction()
 		{
 			try
 			{
@@ -854,7 +846,7 @@ namespace ChatUI
 		/// <summary>
 		/// 顯示設定FlyOut畫面
 		/// </summary>
-		private void ShowSettingCommandAction ()
+		private void ShowSettingCommandAction()
 		{
 			try
 			{
@@ -870,12 +862,12 @@ namespace ChatUI
 		/// <summary>
 		/// 取得FTP Server檔案清單
 		/// </summary>
-		private void GetFTPFileList ()
+		private void GetFTPFileList()
 		{
 			try
 			{
 				FileList.Clear();
-				string ftpServer = "ftp://10.93.9.117";
+				string ftpServer = "ftp://localhost/";
 				FtpWebRequest request = (FtpWebRequest)WebRequest.Create(new Uri(ftpServer));
 				request.Method = WebRequestMethods.Ftp.ListDirectory;
 				request.Credentials = new NetworkCredential("anonymous", "anonymous@example.com");
@@ -908,7 +900,7 @@ namespace ChatUI
 		/// <summary>
 		/// 檢查設定是否存在
 		/// </summary>
-		private void ReadSetting ()
+		private void ReadSetting()
 		{
 			try
 			{
@@ -946,7 +938,7 @@ namespace ChatUI
 		/// <summary>
 		/// Kill所有殘留應用程式instance
 		/// </summary>
-		private void KillAllProcess ()
+		private void KillAllProcess()
 		{
 			try
 			{
@@ -965,7 +957,7 @@ namespace ChatUI
 		/// <summary>
 		/// 關閉視窗按鈕觸發Command
 		/// </summary>
-		private void CloseCommandAction ()
+		private void CloseCommandAction()
 		{
 			try
 			{
@@ -980,7 +972,7 @@ namespace ChatUI
 		/// <summary>
 		/// 傳送訊息
 		/// </summary>
-		private void SendMessageCommandAction ()
+		private void SendMessageCommandAction()
 		{
 			try
 			{
@@ -995,7 +987,7 @@ namespace ChatUI
 		/// <summary>
 		/// 初始化Icon相關
 		/// </summary>
-		private void InitConnection ()
+		private void InitConnection()
 		{
 			try
 			{
@@ -1020,7 +1012,7 @@ namespace ChatUI
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
-		private void Ws_OnClose (object sender, CloseEventArgs e)
+		private void Ws_OnClose(object sender, CloseEventArgs e)
 		{
 			try
 			{
@@ -1037,7 +1029,7 @@ namespace ChatUI
 		/// <summary>
 		/// 初始化WebSocketClient
 		/// </summary>
-		private void InitialClient ()
+		private void InitialClient()
 		{
 			var server = ConfigurationSettings.AppSettings["Server"];
 			WebSocketClient = new WebSocket($"ws://{server}:5566/Connect");
@@ -1064,7 +1056,7 @@ namespace ChatUI
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
-		private void Ws_OnOpen (object sender, EventArgs e)
+		private void Ws_OnOpen(object sender, EventArgs e)
 		{
 			try
 			{
@@ -1081,8 +1073,8 @@ namespace ChatUI
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
-		[DllImport("user32")] public static extern int FlashWindow (IntPtr hwnd, bool bInvert);
-		private void Ws_OnMessage (object sender, MessageEventArgs e)
+		[DllImport("user32")] public static extern int FlashWindow(IntPtr hwnd, bool bInvert);
+		private void Ws_OnMessage(object sender, MessageEventArgs e)
 		{
 			try
 			{
@@ -1100,12 +1092,12 @@ namespace ChatUI
 				{
 					return;
 				}
-				
-				
+
+
 				if (receiveData.Contains("目前已連線使用者"))
 				{
 					var CurrentAddUserID = receiveData.Split(' ')[1];
-					
+
 					App.Current.Dispatcher.Invoke((Action)delegate
 					{
 						var userIP = CurrentAddUserID.Split(':')[0];
@@ -1154,7 +1146,7 @@ namespace ChatUI
 				if (receiveData.Contains("使用者") && receiveData.Contains("加入聊天"))
 				{
 					bool alreadyJoin = false;
-					foreach(var item in AllUser)
+					foreach (var item in AllUser)
 					{
 						if (receiveData.Contains(item.UserIP))
 						{
@@ -1184,9 +1176,9 @@ namespace ChatUI
 							return;
 						}
 					}
-					
+
 				}
-				
+
 				if (receiveData.Contains("使用者") && receiveData.Contains("離開聊天"))
 				{
 					ShowMessage("通知", receiveData, NotificationType.Success);
@@ -1213,34 +1205,34 @@ namespace ChatUI
 					{
 						case WindowState.Maximized:
 						case WindowState.Normal:
-						ShowMessage("通知", receiveData, NotificationType.Success);
-						App.Current.Dispatcher.Invoke((Action)delegate
-						{
-							WindowInteropHelper wih = new WindowInteropHelper((Window)Window);
-							FlashWindow(wih.Handle, true);
-
-						});
-						break;
-						case WindowState.Minimized:
-						ShowMessage("通知", receiveData, NotificationType.Success);
-						State = WindowState.Minimized;
-
-						ShowInToolBar = true;
-						MainWindowVisibly = Visibility.Visible;
-						Thread th = new Thread(() =>
-						{
-							while (State != WindowState.Normal)
+							ShowMessage("通知", receiveData, NotificationType.Success);
+							App.Current.Dispatcher.Invoke((Action)delegate
 							{
-								App.Current.Dispatcher.Invoke((Action)delegate
+								WindowInteropHelper wih = new WindowInteropHelper((Window)Window);
+								FlashWindow(wih.Handle, true);
+
+							});
+							break;
+						case WindowState.Minimized:
+							ShowMessage("通知", receiveData, NotificationType.Success);
+							State = WindowState.Minimized;
+
+							ShowInToolBar = true;
+							MainWindowVisibly = Visibility.Visible;
+							Thread th = new Thread(() =>
+							{
+								while (State != WindowState.Normal)
 								{
-									WindowInteropHelper wih = new WindowInteropHelper((Window)Window);
-									FlashWindow(wih.Handle, true);
-								});
-								Thread.Sleep(1000);
-							}
-						});
-						th.Start();
-						break;
+									App.Current.Dispatcher.Invoke((Action)delegate
+									{
+										WindowInteropHelper wih = new WindowInteropHelper((Window)Window);
+										FlashWindow(wih.Handle, true);
+									});
+									Thread.Sleep(1000);
+								}
+							});
+							th.Start();
+							break;
 					}
 				}
 
@@ -1255,7 +1247,7 @@ namespace ChatUI
 			}
 		}
 
-		private bool FilterMessage (string receiveData)
+		private bool FilterMessage(string receiveData)
 		{
 			if (receiveData.Contains("[img]"))
 			{
@@ -1271,7 +1263,7 @@ namespace ChatUI
 		/// <summary>
 		/// 傳送訊息
 		/// </summary>
-		public void SendMessage ()
+		public void SendMessage()
 		{
 			try
 			{
@@ -1299,7 +1291,7 @@ namespace ChatUI
 						cs.FlushFinalBlock();
 						result = Convert.ToBase64String(ms.ToArray());
 					}
-					if(InPut.Contains("ALL") || InPut.Contains("All") || InPut.Contains("all"))
+					if (InPut.Contains("ALL") || InPut.Contains("All") || InPut.Contains("all"))
 					{
 						sendAllCount++;
 					}
@@ -1308,10 +1300,10 @@ namespace ChatUI
 						sendAllCount = 0;
 					}
 
-					if(sendAllCount > 2)
+					if (sendAllCount > 2)
 					{
 						ShowMessage("傳太多次彈幕了，不讓你傳", $"不讓你傳，鎖定15秒", NotificationType.Error);
-						
+
 						CanSendMessage = false;
 						App.Current.Dispatcher.Invoke((Action)delegate
 						{
@@ -1331,7 +1323,7 @@ namespace ChatUI
 						PreviousInput = InPut;
 						InPut = "";
 					}
-					
+
 				}
 			}
 			catch (Exception ex)
@@ -1346,7 +1338,7 @@ namespace ChatUI
 		/// <param name="title"></param>
 		/// <param name="message"></param>
 		/// <param name="type"></param>
-		public void ShowMessage (string title, string message, NotificationType type)
+		public void ShowMessage(string title, string message, NotificationType type)
 		{
 			try
 			{

@@ -1,6 +1,6 @@
 ﻿namespace ChatUI
 {
-	public class FtpFile: ViewModelBase
+	public class FtpFile : ViewModelBase
 	{
 		#region Declarations
 		public string _FileName = string.Empty;

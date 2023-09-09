@@ -38,7 +38,7 @@
     </controls:MetroWindow.Style>
 
     <Window.Resources>
-        <local:Status x:Key="Status"/>
+        <!--<local:Status x:Key="Status"/>-->
     </Window.Resources>
     
 <controls:MetroWindow.InputBindings>
@@ -119,7 +119,7 @@
                 </Grid>
             </controls:MetroTabItem>
         </controls:MetroAnimatedTabControl>
-        <StatusBar DataContext="{Binding Source={StaticResource Status}}" Grid.Row="1">
+        <StatusBar Grid.Row="1">
             <StatusBarItem>
                 <StackPanel Orientation="Horizontal" Margin="20,0,0,0">
                     <TextBlock Text="Cpu" HorizontalAlignment="Center" Margin="0,0,8,0" FontWeight="Bold"/>

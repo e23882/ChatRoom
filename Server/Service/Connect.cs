@@ -9,38 +9,33 @@ using System.Security.Cryptography;
 
 namespace Server
 {
-	public class Connect: WebSocketBehavior
+	public class Connect : WebSocketBehavior
 	{
 		#region Property
 		public static List<Connect> ClientList = new List<Connect>();
 		#endregion
 
 		#region Memberfunction
-		public Connect () { }
+		public Connect() { }
 
-		protected override void OnOpen ()
+		protected override void OnOpen()
 		{
 			//將目前使用者加入清單
 			ClientList.Add(this);
 
+			//if(!ClientList.Any(x=>x.Context.UserEndPoint.ToString().Split(':')[0] == this.Context.UserEndPoint.ToString().Split(':')[0])) 
 			//通知所有以連線使用者目前登入的使用者
-			
-				foreach (var item in ClientList)
-				{
-					item.Send($"使用者 {this.Context.UserEndPoint} 加入聊天\n");
-				}
-				
-			
+			foreach (var item in ClientList)
+			{
+				item.Send($"使用者 {this.Context.UserEndPoint} 加入聊天\n");
+			}
 			var current = ClientList.Where(x => x.Context.UserEndPoint == this.Context.UserEndPoint).FirstOrDefault();
 			foreach (var item in ClientList)
 			{
 				current.Send($"[目前已連線使用者] {item.Context.UserEndPoint}");
 			}
-
-
-
 		}
-		protected override void OnClose (CloseEventArgs e)
+		protected override void OnClose(CloseEventArgs e)
 		{
 			ClientList.Remove(this);
 
@@ -54,7 +49,7 @@ namespace Server
 			}
 			Console.WriteLine($"目前使用者數量 {ClientList.Count()}");
 		}
-		protected override void OnMessage (MessageEventArgs e)
+		protected override void OnMessage(MessageEventArgs e)
 		{
 			if (!e.IsPing)
 			{

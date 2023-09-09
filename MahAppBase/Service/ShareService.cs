@@ -8,7 +8,7 @@ using WebSocketSharp.Server;
 
 namespace ChatUI
 {
-	public class ShareService:IDisposable
+	public class ShareService : IDisposable
 	{
 		#region Property
 		/// <summary>
@@ -27,7 +27,7 @@ namespace ChatUI
 		/// ShareService物件建構子
 		/// </summary>
 		/// <param name="port"></param>
-		public ShareService (int port)
+		public ShareService(int port)
 		{
 			SocketServer = new WebSocketServer(port);
 			SocketServer.AddWebSocketService<Connect>("/Connect");
@@ -37,7 +37,7 @@ namespace ChatUI
 		/// <summary>
 		/// 執行ShareService
 		/// </summary>
-		internal void Run ()
+		internal void Run()
 		{
 			while (true)
 			{
@@ -63,14 +63,17 @@ namespace ChatUI
 					{
 						SocketServer.WebSocketServices["/Connect"].Sessions.Broadcast(SigBase64);
 					}
-					
+
 				}
 				catch { }
 				Thread.Sleep(100);
 			}
 		}
 
-		public void Dispose ()
+		/// <summary>
+		/// 釋放資源
+		/// </summary>
+		public void Dispose()
 		{
 			SocketServer = null;
 			this.Dispose();

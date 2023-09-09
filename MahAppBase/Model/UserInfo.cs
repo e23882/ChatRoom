@@ -2,7 +2,7 @@
 
 namespace ChatUI
 {
-	public class UserInfo:ViewModelBase
+	public class UserInfo : ViewModelBase
 	{
 		#region Declarations
 		public string _UserIP = "";
@@ -10,6 +10,9 @@ namespace ChatUI
 		#endregion
 
 		#region Property
+		/// <summary>
+		/// 使用者IP
+		/// </summary>
 		public string UserIP
 		{
 			get
@@ -22,6 +25,10 @@ namespace ChatUI
 				OnPropertyChanged();
 			}
 		}
+
+		/// <summary>
+		/// 是否在分享畫面
+		/// </summary>
 		public Visibility IsLive
 		{
 			get

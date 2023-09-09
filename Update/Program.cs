@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Diagnostics;
 using System.IO;
 using System.Net;
@@ -9,17 +10,27 @@ namespace Update
 	public class Program
 	{
 		#region Declarations
+		/// <summary>
+		/// 更新檔案清單
+		/// </summary>
 		public static List<string> FileList = new List<string>();
 		#endregion
 
+		#region Property
+		/// <summary>
+		/// Server IP
+		/// </summary>
+		public static string ServerIP { get; set; }
+		#endregion
 		#region Memberfunction
 		/// <summary>
-		/// 
+		/// 更新Client主程式
 		/// </summary>
 		/// <param name="args"></param>
-		static void Main (string[] args)
+		static void Main(string[] args)
 		{
-			int retryTimes  = 3;
+			ServerIP = ConfigurationSettings.AppSettings["Server"];
+			int retryTimes = 3;
 			while (retryTimes > 0)
 			{
 				try
@@ -33,32 +44,32 @@ namespace Update
 					}
 					break;
 				}
-				catch(Exception ex) 
+				catch (Exception ex)
 				{
 					retryTimes--;
 				}
 			}
 		}
-		
+
 		/// <summary>
 		/// 重新啟動聊天室 Client UI
 		/// </summary>
-		public static void StartChatUI ()
+		public static void StartChatUI()
 		{
 			Process.Start("ChatUI.exe");
 		}
-		
+
 		/// <summary>
 		/// 從FTP下載檔案
 		/// </summary>
 		/// <returns></returns>
-		public static bool Download ()
+		public static bool Download()
 		{
 			try
 			{
 				foreach (var item in FileList)
 				{
-					string ftpServer = $"ftp://10.93.9.117//Update/{item}"; // FTP 服务器地址
+					string ftpServer = $"ftp://{ServerIP}//Update/{item}"; // FTP 服务器地址
 					WebClient client = new WebClient();
 					client.Credentials = new NetworkCredential("anonymous", "anonymous@example.com");
 					client.DownloadFile(ftpServer, item);
@@ -77,11 +88,11 @@ namespace Update
 		/// <summary>
 		/// 取得FTP檔案清單
 		/// </summary>
-		private static void GetFileList ()
+		private static void GetFileList()
 		{
 			try
 			{
-				string ftpServer = "ftp://10.93.9.117/Update";
+				string ftpServer = $"ftp://{ServerIP}/Update";
 				FtpWebRequest request = (FtpWebRequest)WebRequest.Create(new Uri(ftpServer));
 				request.Method = WebRequestMethods.Ftp.ListDirectory;
 				request.Credentials = new NetworkCredential("anonymous", "anonymous@example.com");

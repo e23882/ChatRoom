@@ -5,7 +5,7 @@ using WebSocketSharp;
 
 namespace ChatUI
 {
-	public class LiveViewModel: ViewModelBase
+	public class LiveViewModel : ViewModelBase
 	{
 		#region Declarations
 		private BitmapImage _Source = new BitmapImage();
@@ -28,6 +28,8 @@ namespace ChatUI
 			}
 		}
 
+		public string SerevrPort { get; set; } = "6842";
+
 		/// <summary>
 		/// 分享畫面的使用者IP
 		/// </summary>
@@ -45,24 +47,34 @@ namespace ChatUI
 		/// 觀看分享畫面視窗ViewModel
 		/// </summary>
 		/// <param name="selectedListBoxItem"></param>
-		public LiveViewModel (string selectedListBoxItem)
+		public LiveViewModel(string selectedListBoxItem)
 		{
-			ServerIP = selectedListBoxItem;
-			InitialClient();
+			try
+			{
+				ServerIP = selectedListBoxItem;
+				InitialClient();
+			}
+			catch (Exception ex)
+			{
+				//TODO : 通知、寫LOG
+			}
 		}
 
 		/// <summary>
 		/// 初始化WebSocket Client
 		/// </summary>
-		public void InitialClient ()
+		public void InitialClient()
 		{
 			try
 			{
-				webSocketClient = new WebSocket($"ws://{ServerIP}:6842/Connect");
+				webSocketClient = new WebSocket($"ws://{ServerIP}:{SerevrPort}/Connect");
 				webSocketClient.OnMessage += Ws_OnMessage;
 				webSocketClient.Connect();
 			}
-			catch { }
+			catch
+			{
+				//TODO : 通知、寫LOG
+			}
 		}
 
 		/// <summary>
@@ -70,31 +82,37 @@ namespace ChatUI
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
-		private void Ws_OnMessage (object sender, MessageEventArgs e)
+		private void Ws_OnMessage(object sender, MessageEventArgs e)
 		{
-			var ws = (sender as WebSocket);
-
-			if (ws is null)
+			try
 			{
-				return;
+				var ws = (sender as WebSocket);
+				if (ws is null)
+				{
+					return;
+				}
+
+				string receiveData = e.Data;
+				switch (receiveData)
+				{
+					case "CLOSE":
+						Console.WriteLine("hit");
+						break;
+					default:
+						byte[] binaryData = Convert.FromBase64String(receiveData);
+
+						BitmapImage bi = new BitmapImage();
+						bi.BeginInit();
+						bi.StreamSource = new MemoryStream(binaryData);
+						bi.EndInit();
+						bi.Freeze();
+						Source = bi;
+						break;
+				}
 			}
-
-			string receiveData = e.Data;
-			switch (receiveData)
+			catch (Exception ex)
 			{
-				case "CLOSE":
-				Console.WriteLine("hit");
-				break;
-				default:
-				byte[] binaryData = Convert.FromBase64String(receiveData);
-
-				BitmapImage bi = new BitmapImage();
-				bi.BeginInit();
-				bi.StreamSource = new MemoryStream(binaryData);
-				bi.EndInit();
-				bi.Freeze();
-				Source = bi;
-				break;
+				//TODO : 通知、寫LOG
 			}
 		}
 		#endregion
