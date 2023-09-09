@@ -37,10 +37,6 @@
         </Style>
     </controls:MetroWindow.Style>
 
-    <Window.Resources>
-        <!--<local:Status x:Key="Status"/>-->
-    </Window.Resources>
-    
 <controls:MetroWindow.InputBindings>
         <KeyBinding Gesture="Enter" Command="{Binding SendCommand}"/>
         <KeyBinding Gesture="Esc" Command="{Binding CloseCommand}"/>
@@ -48,11 +44,7 @@
         <KeyBinding Gesture="F5" Command="{Binding SendImageCommand}"/>
     </controls:MetroWindow.InputBindings>
     <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="25"/>
-        </Grid.RowDefinitions>
-        <controls:MetroAnimatedTabControl Grid.Row="0">
+        <controls:MetroAnimatedTabControl>
             <controls:MetroTabItem Header="ChatRoom">
                 <Grid>
                     <Grid.RowDefinitions>
@@ -119,22 +111,6 @@
                 </Grid>
             </controls:MetroTabItem>
         </controls:MetroAnimatedTabControl>
-        <StatusBar Grid.Row="1">
-            <StatusBarItem>
-                <StackPanel Orientation="Horizontal" Margin="20,0,0,0">
-                    <TextBlock Text="Cpu" HorizontalAlignment="Center" Margin="0,0,8,0" FontWeight="Bold"/>
-                    <Grid>
-                        <ProgressBar Minimum="0" Maximum="50" Value="{Binding Cpu}" Width="100" VerticalAlignment="Top" Height="15" FontWeight="Heavy"/>
-                        <TextBlock Text="{Binding Cpu}" TextAlignment="Center" FontWeight="Bold"/>
-                    </Grid>
-                    <TextBlock Text="Memory" Margin="30,0,8,0" FontWeight="Bold"/>
-                    <Grid>
-                        <ProgressBar Value="{Binding Memory}" Width="100" VerticalAlignment="Top" Height="15"/>
-                        <TextBlock Text="{Binding Memory}" TextAlignment="Center"   FontWeight="UltraBold"/>
-                    </Grid>
-                </StackPanel>
-            </StatusBarItem>
-        </StatusBar>
     </Grid>
     <controls:MetroWindow.Flyouts>
         <controls:FlyoutsControl>
