@@ -30,8 +30,6 @@ namespace ChatUI
 
 		private FtpFile _SelectedFile = new FtpFile();
 
-		private NotifyIcon nIcon = new NotifyIcon();
-
 		private WindowState _State = WindowState.Normal;
 
 		private Visibility _MainWindowVisibly = Visibility.Visible;
@@ -61,7 +59,7 @@ namespace ChatUI
 
 		#region Property
 		private Thread ConutSendAllThread { get; set; }
-		public ChooseImage ChooseImageWindow{get;set;}
+		private ChooseImage ChooseImageWindow{get;set;}
 
 		/// <summary>
 		/// 彈幕圖片透明度
@@ -396,11 +394,6 @@ namespace ChatUI
 		public NoParameterCommand SendMessageCommand { get; set; }
 
 		/// <summary>
-		/// 按鈕 上command
-		/// </summary>
-		public NoParameterCommand PressUpButtonCommand { get; set; }
-
-		/// <summary>
 		/// 下載FTP檔案Command
 		/// </summary>
 		public NoParameterCommand DownloadFileCommand { get; set; }
@@ -428,7 +421,7 @@ namespace ChatUI
 		public NoParameterCommand SendImageCommand { get; set; }
 
 		/// <summary>
-		/// 主程式執行時，ICON是否在window toolbar(最小化不顯示)
+		/// 主程式執行時，ICON是否在window
 		/// </summary>
 		public bool ShowInToolBar
 		{
@@ -450,30 +443,6 @@ namespace ChatUI
 		{
 			get
 			{
-				try
-				{
-					switch (_State)
-					{
-						case WindowState.Minimized:
-							//nIcon.Visible = true;
-							ShowInToolBar = true;
-							//MainWindowVisibly = Visibility.Hidden;
-							return _State;
-						case WindowState.Normal:
-							//nIcon.Visible = false;
-							ShowInToolBar = true;
-							//MainWindowVisibly = Visibility.Visible;
-							return _State;
-					}
-				}
-				catch (Exception ex)
-				{
-					//nIcon.Visible = false;
-					ShowInToolBar = true;
-					MainWindowVisibly = Visibility.Visible;
-					ShowMessage("設定主視窗時發生例外", $"{ex.Message}\r\n{ex.StackTrace}", NotificationType.Error);
-					return _State;
-				}
 				return _State;
 			}
 			set
@@ -520,90 +489,6 @@ namespace ChatUI
 		}
 
 		/// <summary>
-		/// 初始化主程式工具列圖案、相關功能
-		/// </summary>
-		public void InitIcon()
-		{
-			var cm = new ContextMenu();
-			try
-			{
-				nIcon.Icon = Properties.Resources.icon;
-				nIcon.Visible = false;
-				nIcon.MouseDoubleClick += NIcon_MouseDoubleClick;
-
-				var miMax = new MenuItem();
-				miMax.Text = "放大";
-				miMax.Click += Mi_Click;
-				cm.MenuItems.Add(miMax);
-
-				var miClose = new MenuItem();
-				miClose.Text = "關閉";
-				miClose.Click += Mi_Click;
-				cm.MenuItems.Add(miClose);
-
-				nIcon.ContextMenu = cm;
-			}
-			catch (Exception ex)
-			{
-				ShowMessage("通知", $"初始化ICon發生例外 {ex.Message}", NotificationType.Error);
-			}
-		}
-
-		/// <summary>
-		/// 右下角工具icon選單項目click事件
-		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="e"></param>
-		private void Mi_Click(object sender, EventArgs e)
-		{
-			try
-			{
-				if ((sender as MenuItem) is null)
-					return;
-
-				switch ((sender as MenuItem).Text)
-				{
-					case "放大":
-						State = WindowState.Normal;
-						break;
-					case "關閉":
-						UserSetting currentSetting = new UserSetting();
-						currentSetting.UserName = UserName;
-						currentSetting.ShowTime = ShowMessageTime;
-						string currentSettingString = JsonConvert.SerializeObject(currentSetting, Formatting.Indented);
-						if (File.Exists("UserSetting.ini"))
-							File.Delete("UserSetting.ini");
-						File.WriteAllText("UserSetting.ini", currentSettingString);
-						KillAllProcess();
-						Environment.Exit(0);
-						break;
-				}
-			}
-			catch (Exception ex)
-			{
-				ShowMessage("設定工具列選單時發生例外", $"{ex.Message}\r\n{ex.StackTrace}", NotificationType.Error);
-			}
-
-		}
-
-		/// <summary>
-		/// 右下角工具icon double click事件
-		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="e"></param>
-		private void NIcon_MouseDoubleClick(object sender, MouseEventArgs e)
-		{
-			try
-			{
-				State = WindowState.Normal;
-			}
-			catch (Exception ex)
-			{
-				ShowMessage("工具列ICON Click時發生例外", $"{ex.Message}\r\n{ex.StackTrace}", NotificationType.Error);
-			}
-		}
-
-		/// <summary>
 		/// 建構子
 		/// </summary>
 		public MainComponent()
@@ -621,6 +506,7 @@ namespace ChatUI
 					}
 				}
 				InitCommand();
+
 				ShowMessage("通知", $"初始化命令完成", NotificationType.Success);
 				InitConnection();
 				ShowMessage("通知", $"初始化連線完成", NotificationType.Success);
@@ -1035,7 +921,7 @@ namespace ChatUI
 		}
 
 		/// <summary>
-		/// 初始化Icon相關
+		/// 初始化WebSocket連線
 		/// </summary>
 		private void InitConnection()
 		{
@@ -1327,13 +1213,13 @@ namespace ChatUI
 				}
 				if (!string.IsNullOrEmpty(InPut.Replace("\r", "").Replace("\n", "")))
 				{
-					string CryptoKey = "54088";
+					string cryptoKey = "54088";
 					string result;
 					AesCryptoServiceProvider aes = new AesCryptoServiceProvider();
 					MD5CryptoServiceProvider md5 = new MD5CryptoServiceProvider();
 					SHA256CryptoServiceProvider sha256 = new SHA256CryptoServiceProvider();
-					byte[] key = sha256.ComputeHash(Encoding.UTF8.GetBytes(CryptoKey));
-					byte[] iv = md5.ComputeHash(Encoding.UTF8.GetBytes(CryptoKey));
+					byte[] key = sha256.ComputeHash(Encoding.UTF8.GetBytes(cryptoKey));
+					byte[] iv = md5.ComputeHash(Encoding.UTF8.GetBytes(cryptoKey));
 					aes.Key = key;
 					aes.IV = iv;
 

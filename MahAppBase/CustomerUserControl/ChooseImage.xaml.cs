@@ -126,7 +126,7 @@ namespace ChatUI
 				return;
 
 			WebSocketClient.Send(SaultMessage(element.Tag.ToString()));
-			this.Close();
+			this.Hide();
 		}
 
 		/// <summary>
@@ -138,7 +138,6 @@ namespace ChatUI
 		{
 			this.Hide();
 			e.Cancel = true;
-
 		}
 		#endregion
 	}
