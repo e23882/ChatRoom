@@ -18,7 +18,11 @@ namespace ChatUI
 	public partial class Barrage1: Window
 	{
 		#region Property
+		/// <summary>
+		/// 彈幕圖片透明度
+		/// </summary>
 		public double Opacity { get; set; } = 0.2;
+
 		/// <summary>
 		/// 彈幕用的WebSocket Client
 		/// </summary>

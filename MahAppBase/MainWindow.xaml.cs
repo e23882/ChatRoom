@@ -17,15 +17,14 @@ namespace ChatUI
 	public partial class MainWindow : MetroWindow
 	{
 		#region Declarations
-		MainComponent viewModel = null;
-		const uint ATTACH_PARENT_PROCESS = 0x0ffffffff;
+		private MainComponent viewModel = null;
+		private const uint ATTACH_PARENT_PROCESS = 0x0ffffffff;
+		
 		private bool closeMe;
-		bool isFirstTime = true;
-
-		bool isChoosingWord = false;
-		string PreviousText = "";
-		int wordLength = 0;
-
+		private bool isFirstTime = true;
+		private bool isChoosingWord = false;
+		
+		private int wordLength = 0;
 		#endregion
 
 		#region Memberfunction
@@ -43,7 +42,6 @@ namespace ChatUI
 			Barrage1 win = new Barrage1();
 			win.Show();
 			viewModel.Barrage = win;
-
 		}
 		public void ShowMessage(string title, string message, NotificationType type)
 		{
@@ -57,7 +55,6 @@ namespace ChatUI
 					Message = message,
 					Type = type,
 				});
-
 			}
 			catch (Exception ex)
 			{
@@ -80,17 +77,14 @@ namespace ChatUI
 			}
 			if (e.Key != Key.Enter)
 				return;
-			AttachConsole(ATTACH_PARENT_PROCESS);
-			Console.WriteLine($"InputEnter");
+
 			//按下Enter且在選字模式 > 不送訊息出去
 			if (wordLength == (sender as System.Windows.Controls.TextBox).Text.Length && isChoosingWord)
 			{
 				return;
-
 			}
-			viewModel.SendMessage();
-			PreviousText = "";
 
+			viewModel.SendMessage();
 		}
 
 		[DllImport("kernel32.dll")]
@@ -98,7 +92,6 @@ namespace ChatUI
 
 		private void TextBox_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
 		{
-
 			AttachConsole(ATTACH_PARENT_PROCESS);
 			Console.WriteLine($"textChange");
 
@@ -133,8 +126,8 @@ namespace ChatUI
 
 			var mySettings = new MetroDialogSettings()
 			{
-				AffirmativeButtonText = "Quit",
-				NegativeButtonText = "Cancel",
+				AffirmativeButtonText = "離開",
+				NegativeButtonText = "縮小",
 				AnimateShow = true,
 				AnimateHide = false
 			};

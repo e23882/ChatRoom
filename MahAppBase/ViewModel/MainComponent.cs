@@ -596,7 +596,7 @@ namespace ChatUI
 			{
 				Live live = new Live();
 				LiveViewModel viewModel = new LiveViewModel(parameter.ToString());
-				if (viewModel.webSocketClient.IsAlive)
+				if (viewModel.WebSocketClient.IsAlive)
 				{
 					live.DataContext = viewModel;
 					live.Show();

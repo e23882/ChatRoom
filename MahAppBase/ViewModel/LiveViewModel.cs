@@ -38,7 +38,7 @@ namespace ChatUI
 		/// <summary>
 		/// WebClient物件實例
 		/// </summary>
-		public WebSocket webSocketClient { get; set; }
+		public WebSocket WebSocketClient { get; set; }
 
 		#endregion
 
@@ -67,9 +67,9 @@ namespace ChatUI
 		{
 			try
 			{
-				webSocketClient = new WebSocket($"ws://{ServerIP}:{SerevrPort}/Connect");
-				webSocketClient.OnMessage += Ws_OnMessage;
-				webSocketClient.Connect();
+				WebSocketClient = new WebSocket($"ws://{ServerIP}:{SerevrPort}/Connect");
+				WebSocketClient.OnMessage += Ws_OnMessage;
+				WebSocketClient.Connect();
 			}
 			catch
 			{

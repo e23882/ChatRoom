@@ -4,8 +4,6 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
-        xmlns:local="clr-namespace:ChatUI"
-        xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
         xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
         mc:Ignorable="d"
         Height="800" Width="800" 
@@ -129,7 +127,6 @@
                             <controls:Badged Badge="{Binding UpdateBadgeText}" Padding="0" Margin="3,0" Height="33" BorderBrush="Transparent">
                                 <Button Content="更新最新版本" Padding="10,0" FontSize="15" controls:ButtonHelper.CornerRadius="0" BorderThickness="1" Command="{Binding UpgradeCommand}"/>
                             </controls:Badged>
-                            
                         </StackPanel>
                         
                         <StackPanel Orientation="Horizontal" Margin="0,20,0,0">
@@ -178,7 +175,6 @@
                                         <Button Content="刪除" Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type controls:MetroWindow}}, Path=DataContext.DeleteFileCommand}" CommandParameter="{Binding FileName}"/>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
-
                             </DataGridTemplateColumn>
                         </DataGrid.Columns>
                     </DataGrid>

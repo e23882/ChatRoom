@@ -63,7 +63,6 @@ namespace ChatUI
 					{
 						SocketServer.WebSocketServices["/Connect"].Sessions.Broadcast(SigBase64);
 					}
-
 				}
 				catch { }
 				Thread.Sleep(100);
