@@ -1,30 +1,31 @@
 ﻿using System;
-using System.Configuration;
-using WebSocketSharp;
-using System.Windows;
-using System.Windows.Forms;
-using System.Net;
-using System.Net.Sockets;
-using Notifications.Wpf;
-using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.IO;
-using Newtonsoft.Json;
-using System.Threading;
-using System.Security.Cryptography;
+using System.Net;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Linq;
+using System.Windows;
+using System.Threading;
+using System.Net.Sockets;
+using System.Diagnostics;
+using System.Windows.Forms;
+using System.Configuration;
 using System.Windows.Interop;
+using System.Security.Cryptography;
+using System.Collections.ObjectModel;
+using System.Text.RegularExpressions;
 using System.Runtime.InteropServices;
+
+using WebSocketSharp;
+using Notifications.Wpf;
+using Newtonsoft.Json;
 
 namespace ChatUI
 {
-	public class MainComponent : ViewModelBase
+	public class MainComponent: ViewModelBase
 	{
 		#region Declarations
 		private Thread _ShareThread = null;
-
+		
 		private ShareService _server = null;
 
 		private FtpFile _SelectedFile = new FtpFile();
@@ -37,12 +38,14 @@ namespace ChatUI
 
 		private bool _ShowInToolBar = true;
 		private bool _FlyOutSettingIsOpen = false;
-		private bool _ShareScreen = true;
+		private bool _ShareScreen = false;
 		private bool _Notify = true;
 		private bool _CanSendMessage = true;
-
+		private int sendAllCount = 0;
 		private int _ShowMessageTime = 3;
-		private int _ConnectCount;
+		private int _ConnectCount = 0;
+
+		private double _Opacity = 20;
 
 		private string _ChatText = string.Empty;
 		private string _InPut = string.Empty;
@@ -57,6 +60,36 @@ namespace ChatUI
 		#endregion
 
 		#region Property
+		private Thread ConutSendAllThread { get; set; }
+		public ChooseImage ChooseImageWindow{get;set;}
+
+		/// <summary>
+		/// 彈幕圖片透明度
+		/// </summary>
+		public double Opacity 
+		{
+			get 
+			{
+				return _Opacity;
+			}
+			set 
+			{
+				_Opacity = value;
+				Barrage.Opacity = _Opacity/100;
+				OnPropertyChanged();
+			}
+		}
+		
+		/// <summary>
+		/// 彈幕視窗物件實例(用於設定彈幕圖片透明度)
+		/// </summary>
+		public Barrage1 Barrage { get; set; } = null;
+
+		/// <summary>
+		/// Chat Service IP
+		/// </summary>
+		public string ServerIP { get; set; } = "localhost";
+
 		/// <summary>
 		/// 是否可以傳送訊息(用在有人一直發彈幕，鎖住他的介面)
 		/// </summary>
@@ -208,6 +241,10 @@ namespace ChatUI
 				OnPropertyChanged();
 			}
 		}
+		
+		/// <summary>
+		/// 是否啟用通知
+		/// </summary>
 		public bool Notify
 		{
 			get
@@ -585,16 +622,26 @@ namespace ChatUI
 				}
 				InitCommand();
 				ShowMessage("通知", $"初始化命令完成", NotificationType.Success);
-
-				//InitIcon();
-				//ShowMessage("通知", $"初始化ICON完成", NotificationType.Success);
-
 				InitConnection();
 				ShowMessage("通知", $"初始化連線完成", NotificationType.Success);
-
 				ReadSetting();
 				ShowMessage("通知", $"初始化設定", NotificationType.Success);
-				chooseImageWindow = new ChooseImage();
+				ChooseImageWindow = new ChooseImage();
+				ConutSendAllThread = new Thread(() =>
+				{
+					
+					while (true)
+					{
+						if (sendAllCount > 0)
+						{
+							sendAllCount--;
+						}
+						Thread.Sleep(10 * 1000);
+					}
+				});
+				ConutSendAllThread.Start();
+
+
 			}
 			catch (Exception ex)
 			{
@@ -645,10 +692,13 @@ namespace ChatUI
 				ShowMessage("通知", $"初始化命令發生例外 {ex.Message}", NotificationType.Error);
 			}
 		}
-		ChooseImage chooseImageWindow = null;
+
+		/// <summary>
+		/// 傳送圖片
+		/// </summary>
 		private void SendImageCommandAction()
 		{
-			chooseImageWindow.Show();
+			ChooseImageWindow.Show();
 		}
 
 		/// <summary>
@@ -724,7 +774,7 @@ namespace ChatUI
 		{
 			try
 			{
-				FtpWebRequest request = (FtpWebRequest)WebRequest.Create($"ftp://localhost//{SelectedFile.FileName}");
+				FtpWebRequest request = (FtpWebRequest)WebRequest.Create($"ftp://{ServerIP}//{SelectedFile.FileName}");
 				request.Credentials = new NetworkCredential("anonymous", "anonymous@example.com");
 				request.Method = WebRequestMethods.Ftp.DeleteFile;
 				FtpWebResponse response = (FtpWebResponse)request.GetResponse();
@@ -752,7 +802,7 @@ namespace ChatUI
 				{
 					try
 					{
-						string ftpServer = $"ftp://localhost//{SelectedFile.FileName}"; // FTP 服务器地址
+						string ftpServer = $"ftp://{ServerIP}//{SelectedFile.FileName}"; // FTP 服务器地址
 						WebClient client = new WebClient();
 						client.Credentials = new NetworkCredential("anonymous", "anonymous@example.com");
 						client.DownloadFile(ftpServer, $"{dialog.SelectedPath}//{SelectedFile.FileName}");
@@ -781,7 +831,7 @@ namespace ChatUI
 						ShowMessage("通知", $"不能上傳包含中文的檔案", NotificationType.Warning);
 						return;
 					}
-					string ftpServer = $"ftp://localhost/{dialog.SafeFileName}";
+					string ftpServer = $"ftp://{ServerIP}/{dialog.SafeFileName}";
 
 					string tempFolder = Path.GetTempPath();
 					//檢查是不是網路磁碟機，是的話先抓回來
@@ -867,7 +917,7 @@ namespace ChatUI
 			try
 			{
 				FileList.Clear();
-				string ftpServer = "ftp://localhost/";
+				string ftpServer = $"ftp://{ServerIP}/";
 				FtpWebRequest request = (FtpWebRequest)WebRequest.Create(new Uri(ftpServer));
 				request.Method = WebRequestMethods.Ftp.ListDirectory;
 				request.Credentials = new NetworkCredential("anonymous", "anonymous@example.com");
@@ -991,8 +1041,8 @@ namespace ChatUI
 		{
 			try
 			{
-				var server = ConfigurationSettings.AppSettings["Server"];
-				WebSocketClient = new WebSocket($"ws://{server}:5566/Connect");
+				ServerIP = ConfigurationSettings.AppSettings["Server"];
+				WebSocketClient = new WebSocket($"ws://{ServerIP}:5566/Connect");
 				WebSocketClient.OnMessage += Ws_OnMessage;
 				WebSocketClient.OnOpen += Ws_OnOpen;
 				WebSocketClient.OnClose += Ws_OnClose;
@@ -1247,6 +1297,11 @@ namespace ChatUI
 			}
 		}
 
+		/// <summary>
+		/// 篩選訊息(篩選彈幕圖片訊息)
+		/// </summary>
+		/// <param name="receiveData"></param>
+		/// <returns></returns>
 		private bool FilterMessage(string receiveData)
 		{
 			if (receiveData.Contains("[img]"))
@@ -1259,7 +1314,6 @@ namespace ChatUI
 			}
 		}
 
-		int sendAllCount = 0;
 		/// <summary>
 		/// 傳送訊息
 		/// </summary>

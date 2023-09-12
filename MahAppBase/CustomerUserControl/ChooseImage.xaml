@@ -6,6 +6,7 @@
         xmlns:local="clr-namespace:ChatUI"
         mc:Ignorable="d"
         Title="ChooseImage" Height="450" Width="800" Closing="Window_Closed">
-    <WrapPanel x:Name="panel">
-    </WrapPanel>
+    <ScrollViewer>
+        <WrapPanel x:Name="panel"/>
+    </ScrollViewer>
 </Window>

@@ -47,7 +47,15 @@ namespace Server
 				}
 				catch { }
 			}
-			Console.WriteLine($"目前使用者數量 {ClientList.Count()}");
+			List<string> existsUser = new List<string>();
+			foreach(var item in ClientList)
+			{
+				var currentIP = item.Context.UserEndPoint.ToString().Split(':')[1];
+				if (!existsUser.Contains(currentIP))
+					existsUser.Add(currentIP);
+			}
+			Console.WriteLine($"目前使用者數量 {existsUser.Count()}");
+			Console.WriteLine($"所有連線數量 {ClientList.Count()}");
 		}
 		protected override void OnMessage(MessageEventArgs e)
 		{

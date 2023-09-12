@@ -42,6 +42,7 @@ namespace ChatUI
 
 			Barrage1 win = new Barrage1();
 			win.Show();
+			viewModel.Barrage = win;
 
 		}
 		public void ShowMessage(string title, string message, NotificationType type)

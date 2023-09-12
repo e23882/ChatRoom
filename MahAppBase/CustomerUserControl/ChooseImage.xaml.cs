@@ -38,6 +38,12 @@ namespace ChatUI
 			RenderImage(Properties.Resources.AllGarbege, "2");
 			RenderImage(Properties.Resources.wut, "3");
 			RenderImage(Properties.Resources.shock, "4");
+			RenderImage(Properties.Resources.EatPie, "5");
+			RenderImage(Properties.Resources.fool, "6");
+			RenderImage(Properties.Resources.isback, "7");
+			RenderImage(Properties.Resources.haha, "8");
+			RenderImage(Properties.Resources.fuckoff, "9");
+			RenderImage(Properties.Resources.disgusting, "10");
 
 		}
 

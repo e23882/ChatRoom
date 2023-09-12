@@ -15,9 +15,10 @@ namespace ChatUI
 	/// <summary>
 	/// Barrage.xaml 的互動邏輯
 	/// </summary>
-	public partial class Barrage1 : Window
+	public partial class Barrage1: Window
 	{
 		#region Property
+		public double Opacity { get; set; } = 0.2;
 		/// <summary>
 		/// 彈幕用的WebSocket Client
 		/// </summary>
@@ -28,7 +29,7 @@ namespace ChatUI
 		/// <summary>
 		/// 彈幕主視窗建構子
 		/// </summary>
-		public Barrage1()
+		public Barrage1 ()
 		{
 			InitializeComponent();
 			this.Deactivated += MainWindow_Deactivated;
@@ -44,7 +45,7 @@ namespace ChatUI
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
-		private void Ws_OnMessage(object sender, MessageEventArgs e)
+		private void Ws_OnMessage (object sender, MessageEventArgs e)
 		{
 			try
 			{
@@ -66,7 +67,7 @@ namespace ChatUI
 					List<string> list = new List<string>();
 					var allData = receiveData.Split(' ');
 					string message = "";
-					for (int i = 5; i < allData.Length; i++)
+					for (int i = 5;i < allData.Length;i++)
 					{
 						message += $" {allData[i]}";
 					}
@@ -85,7 +86,7 @@ namespace ChatUI
 				//TODO : 通知、寫LOG
 			}
 		}
-		private void BarrageImage(string imageIndex)
+		private void BarrageImage (string imageIndex)
 		{
 			try
 			{
@@ -102,20 +103,38 @@ namespace ChatUI
 				switch (imageIndex)
 				{
 					case "1":
-						data = Properties.Resources.EatYourShit;
-						break;
+					data = Properties.Resources.EatYourShit;
+					break;
 					case "2":
-						data = Properties.Resources.AllGarbege;
-						break;
+					data = Properties.Resources.AllGarbege;
+					break;
 					case "3":
-						data = Properties.Resources.wut;
-						break;
+					data = Properties.Resources.wut;
+					break;
 					case "4":
-						data = Properties.Resources.shock;
-						break;
+					data = Properties.Resources.shock;
+					break;
+					case "5":
+					data = Properties.Resources.EatPie;
+					break;
+					case "6":
+					data = Properties.Resources.fool;
+					break;
+					case "7":
+					data = Properties.Resources.isback;
+					break;
+					case "8":
+					data = Properties.Resources.haha;
+					break;
+					case "9":
+					data = Properties.Resources.fuckoff;
+					break;
+					case "10":
+					data = Properties.Resources.disgusting;
+					break;
 					case "bug":
-						data = Properties.Resources.bug;
-						break;
+					data = Properties.Resources.bug;
+					break;
 				}
 				BitmapImage bitmapImage;
 				using (var memory = new MemoryStream())
@@ -136,7 +155,7 @@ namespace ChatUI
 				{
 					//实例化TextBlock和设置基本属性,并添加到Canvas中
 					System.Windows.Controls.Image img = new System.Windows.Controls.Image();
-					img.Opacity = 0.2;
+					img.Opacity = Opacity;
 					img.Width = 200;
 					img.Width = 200;
 					img.Source = bitmapImage;
@@ -165,7 +184,7 @@ namespace ChatUI
 				//TODO : 加通知、寫LOG
 			}
 		}
-		private void MainWindow_StateChanged(object sender, EventArgs e)
+		private void MainWindow_StateChanged (object sender, EventArgs e)
 		{
 			try
 			{
@@ -177,7 +196,7 @@ namespace ChatUI
 			}
 
 		}
-		private void MainWindow_Deactivated(object sender, EventArgs e)
+		private void MainWindow_Deactivated (object sender, EventArgs e)
 		{
 			try
 			{
@@ -193,7 +212,7 @@ namespace ChatUI
 		/// 在Window界面上显示弹幕信息,速度和位置随机产生
 		/// </summary>
 		/// <param name="contentlist"></param>
-		private void BarrageMessage(IEnumerable<string> contentlist)
+		private void BarrageMessage (IEnumerable<string> contentlist)
 		{
 			try
 			{
