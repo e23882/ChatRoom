@@ -117,10 +117,7 @@ namespace ChatUI
 		{
 			if (e.Cancel)
 				return;
-
-			// we want manage the closing itself!
 			e.Cancel = !this.closeMe;
-			// yes we want now really close the window
 			if (this.closeMe)
 				return;
 

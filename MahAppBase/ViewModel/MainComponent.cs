@@ -872,25 +872,6 @@ namespace ChatUI
 		}
 
 		/// <summary>
-		/// Kill所有殘留應用程式instance
-		/// </summary>
-		private void KillAllProcess()
-		{
-			try
-			{
-				foreach (var process in Process.GetProcessesByName("ChatUI"))
-				{
-					process.Kill();
-				}
-			}
-			catch (Exception ex)
-			{
-				ShowMessage("刪除殘留Process時發生例外", $"{ex.Message}\r\n{ex.StackTrace}", NotificationType.Error);
-			}
-
-		}
-
-		/// <summary>
 		/// 關閉視窗按鈕觸發Command
 		/// </summary>
 		private void CloseCommandAction()

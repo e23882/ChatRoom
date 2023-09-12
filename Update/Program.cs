@@ -1,9 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Diagnostics;
 using System.IO;
 using System.Net;
+using System.Diagnostics;
+using System.Configuration;
+using System.Collections.Generic;
 
 namespace Update
 {

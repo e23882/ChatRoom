@@ -11,18 +11,29 @@ namespace Server
         public static Server service = null;
         #endregion
 
-        #region MemberFunction
-        /// <summary>
-        /// 啟動服務主程式
-        /// </summary>
-        /// <param name="args"></param>
-        public static void Main(string[] args)
+        #region Property
+        public static int ServicePort { get; set; } = 5566;
+		#endregion
+
+		#region MemberFunction
+		/// <summary>
+		/// 啟動服務主程式
+		/// </summary>
+		/// <param name="args"></param>
+		public static void Main(string[] args)
         {
-            Server server = new Server(5566);
-            server.Start();
-            Console.WriteLine("WebSocket server started. Press any key to stop.");
-            Console.ReadKey();
-            server.Stop();
+			try
+			{
+                Server server = new Server(ServicePort);
+                server.Start();
+                Console.WriteLine($"WebSocket server started through {ServicePort} port. Press any key to stop.");
+                Console.ReadKey();
+                server.Stop();
+            }
+            catch(Exception ex) 
+            {
+                Console.WriteLine($"Initial WebSocket Server Exception : {ex.Message}\r\n{ex.StackTrace}");
+            }
         }
         #endregion
     }

@@ -128,7 +128,6 @@
                                 <Button Content="更新最新版本" Padding="10,0" FontSize="15" controls:ButtonHelper.CornerRadius="0" BorderThickness="1" Command="{Binding UpgradeCommand}"/>
                             </controls:Badged>
                         </StackPanel>
-                        
                         <StackPanel Orientation="Horizontal" Margin="0,20,0,0">
                             <TextBlock Text="分享畫面" VerticalAlignment="Center" Margin="15,0,0,0"/>
                             <controls:ToggleSwitchButton Height="28" IsChecked="{Binding ShareScreen}" ToolTip="儲存設定(功能啟用、視窗配置)" Margin="10,0,0,0"/>
