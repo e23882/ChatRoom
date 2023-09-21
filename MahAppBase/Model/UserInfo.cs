@@ -2,45 +2,43 @@
 
 namespace ChatUI
 {
-	public class UserInfo : ViewModelBase
-	{
-		#region Declarations
-		public string _UserIP = "";
-		public Visibility _IsLive = Visibility.Collapsed;
-		#endregion
+    public class UserInfo : ViewModelBase
+    {
+        #region Declarations
 
-		#region Property
-		/// <summary>
-		/// 使用者IP
-		/// </summary>
-		public string UserIP
-		{
-			get
-			{
-				return _UserIP;
-			}
-			set
-			{
-				_UserIP = value;
-				OnPropertyChanged();
-			}
-		}
+        private string _UserIP = "";
+        private Visibility _IsLive = Visibility.Collapsed;
 
-		/// <summary>
-		/// 是否在分享畫面
-		/// </summary>
-		public Visibility IsLive
-		{
-			get
-			{
-				return _IsLive;
-			}
-			set
-			{
-				_IsLive = value;
-				OnPropertyChanged();
-			}
-		}
-		#endregion
-	}
+        #endregion
+
+        #region Property
+
+        /// <summary>
+        /// 使用者IP
+        /// </summary>
+        public string UserIP
+        {
+            get { return _UserIP; }
+            set
+            {
+                _UserIP = value;
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>
+        /// 是否在分享畫面
+        /// </summary>
+        public Visibility IsLive
+        {
+            get { return _IsLive; }
+            set
+            {
+                _IsLive = value;
+                OnPropertyChanged();
+            }
+        }
+
+        #endregion
+    }
 }

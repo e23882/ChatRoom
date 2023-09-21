@@ -2,10 +2,14 @@
 
 namespace ChatUI
 {
-	public class Connect : WebSocketBehavior
-	{
-		#region Memberfunction
-		public Connect() { }
-		#endregion
-	}
+    public class Connect : WebSocketBehavior
+    {
+        #region Memberfunction
+
+        public Connect()
+        {
+        }
+
+        #endregion
+    }
 }

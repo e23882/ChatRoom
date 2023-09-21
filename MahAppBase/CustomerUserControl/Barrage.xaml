@@ -4,14 +4,14 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="Barrage"  
-        Height="450" 
-        Width="800" 
-        WindowState="Maximized"  
-        Topmost="True" 
-        AllowsTransparency="True" 
-        Background="Transparent" 
-        WindowStyle="None" 
+        Title="Barrage"
+        Height="450"
+        Width="800"
+        WindowState="Maximized"
+        Topmost="True"
+        AllowsTransparency="True"
+        Background="Transparent"
+        WindowStyle="None"
         ShowInTaskbar="False">
-    <Canvas Name="canvas"/>
+    <Canvas Name="canvas" />
 </Window>

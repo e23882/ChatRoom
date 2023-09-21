@@ -1,32 +1,34 @@
 ﻿<controls:MetroWindow x:Class="ChatUI.MainWindow"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
-        xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
-        mc:Ignorable="d"
-        Height="800" Width="800" 
-        WindowState="{Binding State}" 
-        ShowInTaskbar="{Binding ShowInToolBar}"  
-        Visibility="{Binding MainWindowVisibly}"
-        x:Name="window" Closing="window_Closing" GotFocus="window_GotFocus" >
+                      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                      xmlns:controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+                      xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+                      mc:Ignorable="d"
+                      Height="800" Width="800"
+                      WindowState="{Binding State}"
+                      ShowInTaskbar="{Binding ShowInToolBar}"
+                      Visibility="{Binding MainWindowVisibly}"
+                      x:Name="window" Closing="window_Closing" GotFocus="window_GotFocus">
     <controls:MetroWindow.LeftWindowCommands>
         <controls:WindowCommands>
-            <TextBlock Text="Esc : Minimize the application" VerticalAlignment="Center" Foreground="LightGray" Margin="10,0,5,0"/>
-            <TextBlock Text="F1 : Special function" VerticalAlignment="Center" Foreground="LightGray" Margin="10,0,5,0"/>
+            <TextBlock Text="Esc : Minimize the application" VerticalAlignment="Center" Foreground="LightGray"
+                       Margin="10,0,5,0" />
+            <TextBlock Text="F1 : Special function" VerticalAlignment="Center" Foreground="LightGray" Margin="10,0,5,0" />
         </controls:WindowCommands>
     </controls:MetroWindow.LeftWindowCommands>
     <controls:MetroWindow.Style>
         <Style TargetType="{x:Type controls:MetroWindow}">
-            <Setter Property="BorderThickness" Value="1.23"/>
+            <Setter Property="BorderThickness" Value="1.23" />
             <Setter Property="BorderBrush" Value="#0066FF" />
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
                     <Trigger.EnterActions>
                         <BeginStoryboard HandoffBehavior="SnapshotAndReplace">
                             <Storyboard>
-                                <ColorAnimation Duration="0:0:3" From="#00DB00" To="#FF0000" Storyboard.TargetProperty="BorderBrush.Color" AutoReverse="True" />
+                                <ColorAnimation Duration="0:0:3" From="#00DB00" To="#FF0000"
+                                                Storyboard.TargetProperty="BorderBrush.Color" AutoReverse="True" />
                             </Storyboard>
                         </BeginStoryboard>
                     </Trigger.EnterActions>
@@ -35,29 +37,30 @@
         </Style>
     </controls:MetroWindow.Style>
 
-<controls:MetroWindow.InputBindings>
-        <KeyBinding Gesture="Enter" Command="{Binding SendCommand}"/>
-        <KeyBinding Gesture="Esc" Command="{Binding CloseCommand}"/>
-        <KeyBinding Gesture="F1" Command="{Binding ShowSettingCommand}"/>
-        <KeyBinding Gesture="F5" Command="{Binding SendImageCommand}"/>
+    <controls:MetroWindow.InputBindings>
+        <KeyBinding Gesture="Enter" Command="{Binding SendCommand}" />
+        <KeyBinding Gesture="Esc" Command="{Binding CloseCommand}" />
+        <KeyBinding Gesture="F1" Command="{Binding ShowSettingCommand}" />
+        <KeyBinding Gesture="F5" Command="{Binding SendImageCommand}" />
+        <KeyBinding Gesture="F10" Command="{Binding AdminCommand}" />
     </controls:MetroWindow.InputBindings>
     <Grid>
         <controls:MetroAnimatedTabControl>
             <controls:MetroTabItem Header="ChatRoom">
                 <Grid>
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="auto" />
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="auto"/>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="auto" />
                     </Grid.ColumnDefinitions>
-                    <TextBox Grid.Row="0" Grid.Column="0" x:Name="tbChat"  TextWrapping="Wrap" IsReadOnly="True" 
-                             AcceptsReturn="True" Text="{Binding ChatText}" 
+                    <TextBox Grid.Row="0" Grid.Column="0" x:Name="tbChat" TextWrapping="Wrap" IsReadOnly="True"
+                             AcceptsReturn="True" Text="{Binding ChatText}"
                              VerticalScrollBarVisibility="Auto" Background="#1F1F1F" TextChanged="tbChat_TextChanged"
-                             BorderBrush="#333333" BorderThickness="1"/>
-                    <GridSplitter Grid.Row="0" Background="#333333" VerticalAlignment="Stretch"  Width="3"/>
+                             BorderBrush="#333333" BorderThickness="1" />
+                    <GridSplitter Grid.Row="0" Background="#333333" VerticalAlignment="Stretch" Width="3" />
                     <ListBox Grid.Row="0" Grid.Column="1" MinWidth="130" ItemsSource="{Binding AllUser}">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
@@ -70,40 +73,55 @@
                                         <ColumnDefinition Width="auto" />
                                     </Grid.ColumnDefinitions>
 
-                                    <ListBoxItem Grid.Column="0" Content="{Binding UserIP}" Background="Transparent"/>
-                                    <TextBlock Grid.Column="2" Text="Live" FontWeight="Bold" Background="Transparent" Foreground="Red" Visibility="{Binding IsLive}"/>
-                                    <Button Grid.Column="4" Content="加入" BorderBrush="Transparent" Visibility="{Binding IsLive}" Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type controls:MetroWindow}}, Path=DataContext.WatchLiveCommand}" CommandParameter="{Binding UserIP}"/>
+                                    <ListBoxItem Grid.Column="0" Content="{Binding UserIP}" Background="Transparent" />
+                                    <TextBlock Grid.Column="2" Text="Live" FontWeight="Bold" Background="Transparent"
+                                               Foreground="Red" Visibility="{Binding IsLive}" />
+                                    <Button Grid.Column="4" Content="加入" BorderBrush="Transparent"
+                                            Visibility="{Binding IsLive}"
+                                            Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type controls:MetroWindow}}, Path=DataContext.WatchLiveCommand}"
+                                            CommandParameter="{Binding UserIP}" />
                                 </Grid>
                             </DataTemplate>
                         </ListBox.ItemTemplate>
-                      
+
                     </ListBox>
 
-                    <GridSplitter Grid.Row="0" Grid.ColumnSpan="2" Background="#333333" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Height="3"/>
-                    <Grid Grid.Row="1"  Grid.Column="0"  Grid.ColumnSpan="2">
+                    <GridSplitter Grid.Row="0" Grid.ColumnSpan="2" Background="#333333" VerticalAlignment="Bottom"
+                                  HorizontalAlignment="Stretch" Height="3" />
+                    <Grid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2">
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="auto"/>
-                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="auto" />
+                            <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="auto"/>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="auto" />
                         </Grid.ColumnDefinitions>
                         <StackPanel Grid.Row="0" Orientation="Horizontal">
-                            <TextBlock Text="使用者名稱" VerticalAlignment="Center" Margin="5,0,0,0"/>
-                            <TextBox Text="{Binding UserName}" Width="120" Margin="10,0,0,0" BorderBrush="Transparent" VerticalAlignment="Center" Padding="0,1,0,0"/>
-                            <TextBlock Text="　  " x:Name="tbStatus" VerticalAlignment="Center" Margin="5,0,0,0" Background="{Binding StatusBackGroundColor}"/>
-                            <TextBlock Text="{Binding ConnectStatus}" Width="150" Margin="3,0,0,0" VerticalAlignment="Center"/>
-                            <TextBlock Text="訊息顯示時間" VerticalAlignment="Center" Margin="30,0,0,0"/>
-                            <TextBox Text="{Binding ShowMessageTime}" Width="25" Margin="0,0,0,0" BorderBrush="Transparent" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                            <TextBlock Text="秒" VerticalAlignment="Center"/>
-                            <iconPacks:PackIconModern Width="26"  Kind="People" VerticalAlignment="Center" Margin="50,0,0,0"/>
-                            <TextBlock Text="{Binding ConnectCount}" VerticalAlignment="Center" FontSize="18"/>
+                            <TextBlock Text="使用者名稱" VerticalAlignment="Center" Margin="5,0,0,0" />
+                            <TextBox Text="{Binding UserName}" Width="120" Margin="10,0,0,0" BorderBrush="Transparent"
+                                     VerticalAlignment="Center" Padding="0,1,0,0" />
+                            <TextBlock Text="　  " x:Name="tbStatus" VerticalAlignment="Center" Margin="5,0,0,0"
+                                       Background="{Binding StatusBackGroundColor}" />
+                            <TextBlock Text="{Binding ConnectStatus}" Width="150" Margin="3,0,0,0"
+                                       VerticalAlignment="Center" />
+                            <TextBlock Text="訊息顯示時間" VerticalAlignment="Center" Margin="30,0,0,0" />
+                            <TextBox Text="{Binding ShowMessageTime}" Width="25" Margin="0,0,0,0"
+                                     BorderBrush="Transparent" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                            <TextBlock Text="秒" VerticalAlignment="Center" />
+                            <iconPacks:PackIconModern Width="26" Kind="People" VerticalAlignment="Center"
+                                                      Margin="50,0,0,0" />
+                            <TextBlock Text="{Binding ConnectCount}" VerticalAlignment="Center" FontSize="18" />
                         </StackPanel>
-                        <TextBox TextWrapping="Wrap" AcceptsReturn="True" Grid.Row="1" Grid.Column="0" Height="40" BorderBrush="#333333" BorderThickness="1" KeyUp="TextBox_KeyUp" TextChanged="TextBox_TextChanged" IsEnabled="{Binding CanSendMessage}" Text="{Binding InPut, UpdateSourceTrigger=PropertyChanged}"/>
-                        <StackPanel Grid.Row="1"  Grid.Column="1" Orientation="Horizontal" >
-                            <Button Content="傳送檔案" Padding="10,2" Grid.Row="1"  Grid.Column="1" FontSize="15" Command="{Binding SendDataCommand}" BorderBrush="#333333"/>
-                            <Button Content="SEND" Padding="10,0" Grid.Row="1"  Grid.Column="1" FontSize="15" Command="{Binding SendMessageCommand}" BorderBrush="#333333"/>
+                        <TextBox TextWrapping="Wrap" AcceptsReturn="True" Grid.Row="1" Grid.Column="0" Height="40"
+                                 BorderBrush="#333333" BorderThickness="1" KeyUp="TextBox_KeyUp"
+                                 TextChanged="TextBox_TextChanged" IsEnabled="{Binding CanSendMessage}"
+                                 Text="{Binding InPut, UpdateSourceTrigger=PropertyChanged}" />
+                        <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal">
+                            <Button Content="傳送檔案" Padding="10,2" Grid.Row="1" Grid.Column="1" FontSize="15"
+                                    Command="{Binding SendDataCommand}" BorderBrush="#333333" />
+                            <Button Content="SEND" Padding="10,0" Grid.Row="1" Grid.Column="1" FontSize="15"
+                                    Command="{Binding SendMessageCommand}" BorderBrush="#333333" />
                         </StackPanel>
                     </Grid>
                 </Grid>
@@ -112,66 +130,85 @@
     </Grid>
     <controls:MetroWindow.Flyouts>
         <controls:FlyoutsControl>
-            <controls:Flyout x:Name="flySetting" IsOpen="{Binding FlyOutSettingIsOpen}" Header="Setting" Theme="Dark" Position="Left" >
+            <controls:Flyout x:Name="flySetting" IsOpen="{Binding FlyOutSettingIsOpen}" Header="Setting" Theme="Dark"
+                             Position="Left">
                 <Grid>
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="auto"/>
-                        <RowDefinition Height="auto"/>
-                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="auto" />
                     </Grid.RowDefinitions>
                     <StackPanel Orientation="Vertical">
                         <StackPanel Orientation="Horizontal" Margin="10,0,0,0">
-                            <controls:Badged Padding="0" Margin="3,0" Height="33" BorderBrush="Transparent" >
-                                <Button Content="清除所有對話" Padding="10,0" FontSize="15" controls:ButtonHelper.CornerRadius="0" BorderThickness="1" Command="{Binding ClearTextCommand}"/>
+                            <controls:Badged Padding="0" Margin="3,0" Height="33" BorderBrush="Transparent">
+                                <Button Content="清除所有對話" Padding="10,0" FontSize="15"
+                                        controls:ButtonHelper.CornerRadius="0" BorderThickness="1"
+                                        Command="{Binding ClearTextCommand}" />
                             </controls:Badged>
-                            <controls:Badged Badge="{Binding UpdateBadgeText}" Padding="0" Margin="3,0" Height="33" BorderBrush="Transparent">
-                                <Button Content="更新最新版本" Padding="10,0" FontSize="15" controls:ButtonHelper.CornerRadius="0" BorderThickness="1" Command="{Binding UpgradeCommand}"/>
+                            <controls:Badged Badge="{Binding UpdateBadgeText}" Padding="0" Margin="3,0" Height="33"
+                                             BorderBrush="Transparent">
+                                <Button Content="更新最新版本" Padding="10,0" FontSize="15"
+                                        controls:ButtonHelper.CornerRadius="0" BorderThickness="1"
+                                        Command="{Binding UpgradeCommand}" />
                             </controls:Badged>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal" Margin="0,20,0,0">
-                            <TextBlock Text="分享畫面" VerticalAlignment="Center" Margin="15,0,0,0"/>
-                            <controls:ToggleSwitchButton Height="28" IsChecked="{Binding ShareScreen}" ToolTip="儲存設定(功能啟用、視窗配置)" Margin="10,0,0,0"/>
+                            <TextBlock Text="分享畫面" VerticalAlignment="Center" Margin="15,0,0,0" />
+                            <controls:ToggleSwitchButton Height="28" IsChecked="{Binding ShareScreen}"
+                                                         ToolTip="儲存設定(功能啟用、視窗配置)" Margin="10,0,0,0" />
                         </StackPanel>
                         <StackPanel Orientation="Horizontal" Margin="0,20,0,0">
-                            <TextBlock Text="啟用通知" VerticalAlignment="Center" Margin="15,0,0,0"/>
-                            <controls:ToggleSwitchButton Height="28" IsChecked="{Binding Notify}" ToolTip="儲存設定(功能啟用、視窗配置)" Margin="10,0,0,0"/>
+                            <TextBlock Text="啟用通知" VerticalAlignment="Center" Margin="15,0,0,0" />
+                            <controls:ToggleSwitchButton Height="28" IsChecked="{Binding Notify}"
+                                                         ToolTip="儲存設定(功能啟用、視窗配置)" Margin="10,0,0,0" />
                         </StackPanel>
                         <StackPanel Orientation="Horizontal" Margin="0,20,0,0">
-                            <TextBlock Text="透明度" Margin="15,0,0,0"/>
-                            <Slider Minimum="10" Maximum="100" Value="{Binding Opacity}" LargeChange="10" SmallChange="10" Width="100" TickFrequency="10"   IsSnapToTickEnabled="True" TickPlacement="None" Margin="25,0,0,0"/>
-                            <TextBlock Text="{Binding Opacity}" Margin="35,0,0,0" FontSize="20"/>
-                            <TextBlock Text="%" Margin="5,0,0,0" FontSize="20"/>
+                            <TextBlock Text="透明度" Margin="15,0,0,0" />
+                            <Slider Minimum="10" Maximum="100" Value="{Binding Opacity}" LargeChange="10"
+                                    SmallChange="10" Width="100" TickFrequency="10" IsSnapToTickEnabled="True"
+                                    TickPlacement="None" Margin="25,0,0,0" />
+                            <TextBlock Text="{Binding Opacity}" Margin="35,0,0,0" FontSize="20" />
+                            <TextBlock Text="%" Margin="5,0,0,0" FontSize="20" />
                         </StackPanel>
                     </StackPanel>
-                    <DataGrid Grid.Row="1" ItemsSource="{Binding FileList}" AutoGenerateColumns="False" SelectedItem="{Binding SelectedFile}" CanUserAddRows="False" Margin="0,10,0,0">
+                    <DataGrid Grid.Row="1" ItemsSource="{Binding FileList}" AutoGenerateColumns="False"
+                              SelectedItem="{Binding SelectedFile}" CanUserAddRows="False" Margin="0,10,0,0">
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="檔名" Binding="{Binding FileName}"/>
+                            <DataGridTextColumn Header="檔名" Binding="{Binding FileName}" />
                             <DataGridTemplateColumn>
                                 <DataGridTemplateColumn.HeaderTemplate>
                                     <DataTemplate>
                                         <StackPanel Orientation="Horizontal" Width="100">
-                                            <ProgressBar  Foreground="White" Background="LightGreen"  Minimum="0" Maximum="100" IsIndeterminate="True" Width="100" Margin="5,0,0,0"/>
+                                            <ProgressBar Foreground="White" Background="LightGreen" Minimum="0"
+                                                         Maximum="100" IsIndeterminate="True" Width="100"
+                                                         Margin="5,0,0,0" />
                                         </StackPanel>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.HeaderTemplate>
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <Button Content="下載" Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type controls:MetroWindow}}, Path=DataContext.DownloadFileCommand}" CommandParameter="{Binding FileName}"/>
+                                        <Button Content="下載"
+                                                Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type controls:MetroWindow}}, Path=DataContext.DownloadFileCommand}"
+                                                CommandParameter="{Binding FileName}" />
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
-                                
+
                             </DataGridTemplateColumn>
                             <DataGridTemplateColumn>
                                 <DataGridTemplateColumn.HeaderTemplate>
                                     <DataTemplate>
                                         <StackPanel Orientation="Horizontal" Width="100">
-                                            <ProgressBar  Foreground="White" Background="LightGreen"  Minimum="0" Maximum="100" IsIndeterminate="True" Width="100" Margin="5,0,0,0"/>
+                                            <ProgressBar Foreground="White" Background="LightGreen" Minimum="0"
+                                                         Maximum="100" IsIndeterminate="True" Width="100"
+                                                         Margin="5,0,0,0" />
                                         </StackPanel>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.HeaderTemplate>
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <Button Content="刪除" Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type controls:MetroWindow}}, Path=DataContext.DeleteFileCommand}" CommandParameter="{Binding FileName}"/>
+                                        <Button Content="刪除"
+                                                Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type controls:MetroWindow}}, Path=DataContext.DeleteFileCommand}"
+                                                CommandParameter="{Binding FileName}" />
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>

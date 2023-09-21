@@ -7,6 +7,6 @@
         mc:Ignorable="d"
         Title="ChooseImage" Height="450" Width="800" Closing="Window_Closed">
     <ScrollViewer>
-        <WrapPanel x:Name="panel"/>
+        <WrapPanel x:Name="panel" />
     </ScrollViewer>
 </Window>

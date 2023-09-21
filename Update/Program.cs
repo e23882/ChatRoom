@@ -22,6 +22,7 @@ namespace Update
 		/// </summary>
 		public static string ServerIP { get; set; }
 		#endregion
+
 		#region Memberfunction
 		/// <summary>
 		/// 更新Client主程式
