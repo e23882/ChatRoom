@@ -47,6 +47,8 @@ namespace ChatUI
             RenderImage(Properties.Resources.haha, "8");
             RenderImage(Properties.Resources.fuckoff, "9");
             RenderImage(Properties.Resources.disgusting, "10");
+            RenderImage(Properties.Resources.koreaFuck, "11");
+            RenderImage(Properties.Resources.dog, "12");
         }
 
         /// <summary>

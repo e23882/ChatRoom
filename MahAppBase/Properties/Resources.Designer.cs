@@ -93,6 +93,16 @@ namespace ChatUI.Properties {
         /// <summary>
         ///   查詢類型 System.Drawing.Bitmap 的當地語系化資源。
         /// </summary>
+        internal static System.Drawing.Bitmap dog {
+            get {
+                object obj = ResourceManager.GetObject("dog", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   查詢類型 System.Drawing.Bitmap 的當地語系化資源。
+        /// </summary>
         internal static System.Drawing.Bitmap EatPie {
             get {
                 object obj = ResourceManager.GetObject("EatPie", resourceCulture);
@@ -156,6 +166,16 @@ namespace ChatUI.Properties {
         internal static System.Drawing.Bitmap isback {
             get {
                 object obj = ResourceManager.GetObject("isback", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   查詢類型 System.Drawing.Bitmap 的當地語系化資源。
+        /// </summary>
+        internal static System.Drawing.Bitmap koreaFuck {
+            get {
+                object obj = ResourceManager.GetObject("koreaFuck", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

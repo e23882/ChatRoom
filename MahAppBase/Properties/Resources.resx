@@ -127,6 +127,9 @@
   <data name="disgusting" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\ef25f42863f24134983dfeeda8800a11_1641530356~tplv-dy-360p.jpeg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="dog" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\3979815-PH.jpg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
   <data name="EatPie" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\3397138-PH.jpg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
@@ -147,6 +150,9 @@
   </data>
   <data name="isback" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\images (1).jpg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="koreaFuck" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\774ef778675a6690effceec24f27dbff.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="shock" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\擷取.JPG;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>

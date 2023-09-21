@@ -130,8 +130,7 @@
     </Grid>
     <controls:MetroWindow.Flyouts>
         <controls:FlyoutsControl>
-            <controls:Flyout x:Name="flySetting" IsOpen="{Binding FlyOutSettingIsOpen}" Header="Setting" Theme="Dark"
-                             Position="Left">
+            <controls:Flyout x:Name="flySetting" IsOpen="{Binding FlyOutSettingIsOpen}" Header="Setting" Theme="Dark" Position="Left">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="auto" />

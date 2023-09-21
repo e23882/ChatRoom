@@ -181,7 +181,7 @@ namespace ChatUI
         /// <summary>
         /// 設定FlyOut是否打開
         /// </summary>
-        private bool FlyOutSettingIsOpen
+        public bool FlyOutSettingIsOpen
         {
             get { return _FlyOutSettingIsOpen; }
             set
@@ -217,7 +217,7 @@ namespace ChatUI
         /// <summary>
         /// 連線使用者數量
         /// </summary>
-        private int ConnectCount
+        public int ConnectCount
         {
             get { return _ConnectCount; }
             set
@@ -256,7 +256,7 @@ namespace ChatUI
         /// <summary>
         /// 訊息彈出視窗顯示時間
         /// </summary>
-        private int ShowMessageTime
+        public int ShowMessageTime
         {
             get { return _ShowMessageTime; }
             set
@@ -269,7 +269,7 @@ namespace ChatUI
         /// <summary>
         /// 聊天的訊息
         /// </summary>
-        private string ChatText
+        public string ChatText
         {
             get { return _ChatText; }
             set
@@ -287,7 +287,7 @@ namespace ChatUI
         /// <summary>
         /// 使用者輸入的訊息
         /// </summary>
-        private string InPut
+        public string InPut
         {
             get { return _InPut; }
             set
@@ -300,7 +300,7 @@ namespace ChatUI
         /// <summary>
         /// 使用者名稱
         /// </summary>
-        private string UserName
+        public string UserName
         {
             get { return _UserName; }
             set
@@ -413,7 +413,7 @@ namespace ChatUI
         /// <summary>
         /// 目前與WebSocket Server連線狀態
         /// </summary>
-        private string ConnectStatus
+        public string ConnectStatus
         {
             get { return _ConnectStatus; }
             set
@@ -749,7 +749,7 @@ namespace ChatUI
             try
             {
                 FlyOutSettingIsOpen = !FlyOutSettingIsOpen;
-                GetFtpFileList();
+                //GetFtpFileList();
             }
             catch (Exception ex)
             {
